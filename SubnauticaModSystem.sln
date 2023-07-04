@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutosortLockers", "AutosortLockers\AutosortLockers.csproj", "{6C883B28-31E6-4C26-B32B-BF5BE0D70190}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{DD1D2DC7-3BDC-4DC1-99C8-2D0CCBF2B171}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_Autosort|Any CPU = Debug_Autosort|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6C883B28-31E6-4C26-B32B-BF5BE0D70190}.Debug_Autosort|Any CPU.ActiveCfg = Release|Any CPU
+		{6C883B28-31E6-4C26-B32B-BF5BE0D70190}.Debug_Autosort|Any CPU.Build.0 = Release|Any CPU
+		{6C883B28-31E6-4C26-B32B-BF5BE0D70190}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C883B28-31E6-4C26-B32B-BF5BE0D70190}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C883B28-31E6-4C26-B32B-BF5BE0D70190}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C883B28-31E6-4C26-B32B-BF5BE0D70190}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CDBD310C-8412-406C-B7E8-237B7CF7336D}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Common\Common.projitems*{6c883b28-31e6-4c26-b32b-bf5be0d70190}*SharedItemsImports = 5
+		Common\Common.projitems*{dd1d2dc7-3bdc-4dc1-99c8-2d0ccbf2b171}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal

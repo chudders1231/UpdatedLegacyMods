@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>dd1d2dc7-3bdc-4dc1-99c8-2d0ccbf2b171</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Common</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Mod\CallbackOnDestroy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mod\ImageUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mod\LockerPrefabShared.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mod\ModSaver.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mod\ProtobufSerializerPatcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mod\SerializableColor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mod\ModUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mod\Utilities.cs" />
+  </ItemGroup>
+</Project>
