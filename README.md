@@ -56,7 +56,6 @@ This project aims to slowly port older legacy mods to nautilus that i have permi
 
 Keep an eye out on the Subnautica Modding discord for test builds, and will hopefully add them to Submodica when the mod has the necessary polish.
 
-<br/>
 
 ## **Autosort Lockers**
 This mod was originally created by RandyKnapp and has created some powerful and well-polished mods. It provides an autosorting locker than takes items, and delivers them to recepticles based on your choice of filters.
@@ -68,10 +67,8 @@ This mod was originally created by RandyKnapp and has created some powerful and 
 - Standing locker recepticle
 - Customise the colour of the locker and it's panel
 
-<br/>
 
 ## **Prerequisites**
-<br/>
 
 #### **Required**
 - [**BepInEx pack for Subnautica**](https://www.nexusmods.com/subnautica/mods/1108)
