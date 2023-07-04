@@ -52,7 +52,7 @@ namespace Common.Mod
 		private static ConfigT WriteDefaultConfig<ConfigT>(string configFilePath)
 			 where ConfigT : class, new()
 		{
-			AutosortLockers.AutosortLogger.Log(configFilePath);
+
 			var defaultConfig = new ConfigT();
 			string serialilzedConfig = JsonConvert.SerializeObject(defaultConfig, Formatting.Indented);
 			File.WriteAllText(configFilePath, serialilzedConfig);

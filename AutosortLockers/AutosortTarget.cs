@@ -12,6 +12,8 @@ using Nautilus.Assets;
 using Nautilus.Assets.PrefabTemplates;
 using TMPro;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
+using System;
 
 namespace AutosortLockers
 {
@@ -26,7 +28,7 @@ namespace AutosortLockers
 		private AutosortTypePicker picker;
 		private CustomizeScreen customizeScreen;
 		private Coroutine plusCoroutine;
-		private SaveDataEntry saveData;
+        private SaveDataEntry saveData;
 
 		[SerializeField]
 		private TextMeshProUGUI textPrefab;
@@ -65,10 +67,17 @@ namespace AutosortLockers
 		{
 			AutosortLogger.Log("OnDataLoaded");
 			saveData = GetSaveData();
-			InitializeFromSaveData();
-			InitializeFilters();
-			UpdateText();
-		}
+            string json = JsonConvert.SerializeObject(saveData, Formatting.Indented);
+
+
+            Console.WriteLine(json);
+            InitializeFromSaveData();
+
+            InitializeFilters();
+
+            UpdateText();
+
+        }
 
 		public void SetPicker(AutosortTypePicker picker)
 		{
@@ -249,10 +258,11 @@ namespace AutosortLockers
 
 		private void Update()
 		{
-            if (!initialized && constructable._constructed && transform.parent != null)
-            {
-                Initialize();
-            }
+
+			if(!initialized && constructable._constructed && transform.parent != null )
+			{
+				Initialize();
+			}
 
             if (!initialized || !constructable._constructed)
 			{
@@ -378,14 +388,15 @@ namespace AutosortLockers
 
 			CreatePicker();
 
-			UWE.CoroutineHost.StartCoroutine(CreateCustomizeScreen(background, saveData));
+            UWE.CoroutineHost.StartCoroutine(CreateCustomizeScreen(background, saveData));
 
-			initialized = true;
-		}
+            initialized = true;
+
+        }
 
 		private void InitializeFromSaveData()
 		{
-			AutosortLogger.Log($"Object Initialize from Save Data");
+			AutosortLogger.Log("Object Initialized from Save Data");
 			label.text = saveData.Label;
 			label.color = saveData.LabelColor.ToColor();
 			icon.color = saveData.IconColor.ToColor();
@@ -472,8 +483,9 @@ namespace AutosortLockers
 		private void CreatePicker()
 		{
 			SetPicker(AutosortTypePicker.Create(transform, textPrefab));
+
 			picker.transform.localPosition = background.canvas.transform.localPosition + new Vector3(0, 0, 0.04f);
-			picker.Initialize(this);
+            picker.Initialize(this);
 			picker.gameObject.SetActive(false);
 		}
 
@@ -559,18 +571,17 @@ namespace AutosortLockers
                     {
                         meshRenderer.material.color = new Color(0.3f, 0.3f, 0.3f);
                     }
-
+                    var canvas = LockerPrefabShared.CreateCanvas(obj.transform);
                     var autosortTarget = obj.AddComponent<AutosortTarget>();
+                    autosortTarget.background = LockerPrefabShared.CreateBackground(canvas.transform);
 
-                    autosortTarget.textPrefab = GameObject.Instantiate(obj.GetComponentInChildren<TextMeshProUGUI>());
+                    triggerCull.objectToCull = canvas.gameObject;
+
+                    autosortTarget.textPrefab = Instantiate(obj.GetComponentInChildren<TextMeshProUGUI>());
                     var label = obj.FindChild("Label");
                     DestroyImmediate(label);
 
-                    var canvas = LockerPrefabShared.CreateCanvas(obj.transform);
 
-					triggerCull.objectToCull = canvas.gameObject;
-
-                    autosortTarget.background = LockerPrefabShared.CreateBackground(canvas.transform);
                     autosortTarget.icon = LockerPrefabShared.CreateIcon(autosortTarget.background.transform, autosortTarget.textPrefab.color, 70);
                     autosortTarget.text = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, -20, 12, "Any");
 

@@ -221,8 +221,6 @@ namespace AutosortLockers
             screen.colorPicker.gameObject.SetActive(false);
 			screen.colorPicker.rectTransform.anchoredPosition = new Vector2(0, 30);
 
-            AutosortLogger.Log("Create customize screen, this is where it all goes wrong!");
-
 			result.Set(screen);
 			yield break;
 		}
