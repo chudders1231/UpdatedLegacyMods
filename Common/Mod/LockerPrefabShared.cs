@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using AutosortLockers;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -63,7 +64,8 @@ namespace Common.Mod
 		internal static TextMeshProUGUI CreateText(Transform parent, TextMeshProUGUI prefab, Color color, int y, int size, string initial)
 		{
 			var text = new GameObject("Text", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
-			var rt = text.rectTransform;
+
+            var rt = text.rectTransform;
 			RectTransformExtensions.SetParams(rt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), parent);
 			RectTransformExtensions.SetSize(rt, 120, 200);
 			rt.anchoredPosition = new Vector2(0, y);
@@ -74,7 +76,7 @@ namespace Common.Mod
 			text.alignment = TextAlignmentOptions.Midline;
 			text.text = initial;
 
-			return text;
+            return text;
 		}
 	}
 }

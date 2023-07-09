@@ -111,14 +111,15 @@ namespace AutosortLockers
 			button.background.type = Image.Type.Sliced;
 
 			button.text = new GameObject("Text", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
-			RectTransformExtensions.SetParams(button.text.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), button.transform);
+			RectTransformExtensions.SetParams(button.text.rectTransform, new Vector2(0.5f, 0.55f), new Vector2(0.5f, 0.55f), button.transform);
 			RectTransformExtensions.SetSize(button.text.rectTransform, width, height);
 			button.text.color = new Color(1, 1, 1);
 			button.text.font = textPrefab.font;
-			button.text.fontSize = 10;
+			button.text.fontSize = 8;
 			button.text.alignment = TextAlignmentOptions.Midline;
 
-			button.onClick += action;
+
+            button.onClick += action;
 
 			return button;
 		}

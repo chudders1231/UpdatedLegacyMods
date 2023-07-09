@@ -121,6 +121,7 @@ namespace AutosortLockers
 			target.IconColor = Mod.colors[index];
 			onModified();
 			colorPicker.onSelect -= OnIconColorPicked;
+
 			SetColor(target);
 		}
 
@@ -154,7 +155,6 @@ namespace AutosortLockers
 			SetColor(target);
 		}
 
-		
 		private void OnLockerColorSettingClicked()
 		{
 			colorPicker.Initialize(target.LockerColor.ToColor());
@@ -176,6 +176,7 @@ namespace AutosortLockers
 
 			CoroutineTask<GameObject> task = CraftData.GetBuildPrefabAsync(TechType.SmallLocker);
 			yield return task;
+
 			var lockerPrefab = task.GetResult();
 			var textPrefabComp = lockerPrefab.GetComponentInChildren<TextMeshProUGUI>();
 

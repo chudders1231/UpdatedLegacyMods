@@ -102,7 +102,7 @@ namespace AutosortLockers
         {
             while (true)
             {
-                yield return new WaitForSeconds(Mathf.Max(0, Mod.config.SortInterval - (unsortableItems / 60.0f)));
+                yield return new WaitForSeconds(Mathf.Max(0, AutosortConfig.SortInterval.Value - (unsortableItems / 60.0f)));
 
                 yield return Sort();
             }
@@ -203,7 +203,7 @@ namespace AutosortLockers
                         foreach (var techType in filter.Types)
                         {
                             callsToCanAddItem++;
-                            var items = container.container.GetItems(techType);
+                            var items = container.container.GetItems((TechType)techType);
                             if (items != null && items.Count > 0 && target.CanAddItem(items[0].item))
                             {
                                 unsortableItems -= items.Count;
@@ -312,9 +312,9 @@ namespace AutosortLockers
                 {
                     var triggerCull = obj.GetComponentInChildren<TriggerCull>();
                     var container = obj.GetComponent<StorageContainer>();
-                    container.width = Mod.config.AutosorterWidth;
-                    container.height = Mod.config.AutosorterHeight;
-                    container.container.Resize(Mod.config.AutosorterWidth, Mod.config.AutosorterHeight);
+                    container.width = AutosortConfig.AutosorterWidth.Value;
+                    container.height = AutosortConfig.AutosorterHeight.Value;
+                    container.container.Resize(AutosortConfig.AutosorterWidth.Value, AutosortConfig.AutosorterHeight.Value);
 
                     var meshRenderers = obj.GetComponentsInChildren<MeshRenderer>();
                     foreach (var meshRenderer in meshRenderers)
@@ -323,6 +323,7 @@ namespace AutosortLockers
                     }
 
                     var prefabText = obj.GetComponentInChildren<TextMeshProUGUI>();
+
                     var label = obj.FindChild("Label");
                     DestroyImmediate(label);
 
@@ -347,7 +348,7 @@ namespace AutosortLockers
                 var recipe = new RecipeData
                 {
                     craftAmount = 1,
-                    Ingredients = Mod.config.EasyBuild
+                    Ingredients = AutosortConfig.EasyBuild.Value
                     ? new List<Ingredient>
                     {
                         new Ingredient(TechType.Titanium, 2)

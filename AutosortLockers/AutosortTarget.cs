@@ -11,7 +11,6 @@ using Ingredient = CraftData.Ingredient;
 using Nautilus.Assets;
 using Nautilus.Assets.PrefabTemplates;
 using TMPro;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
 
@@ -31,7 +30,7 @@ namespace AutosortLockers
         private SaveDataEntry saveData;
 
 		[SerializeField]
-		private TextMeshProUGUI textPrefab;
+		private TextMeshProUGUI textPrefab; // Problem child needs to be created before anything else is called.
 		[SerializeField]
 		private Image background;
 		[SerializeField]
@@ -59,24 +58,14 @@ namespace AutosortLockers
 		{
 			constructable = GetComponent<Constructable>();
 			container = gameObject.GetComponent<StorageContainer>();
-
-			Mod.OnDataLoaded += OnDataLoaded;
         }
 
-		private void OnDataLoaded(SaveData allSaveData)
+		private void Start()
 		{
-			AutosortLogger.Log("OnDataLoaded");
-			saveData = GetSaveData();
-            string json = JsonConvert.SerializeObject(saveData, Formatting.Indented);
-
-
-            Console.WriteLine(json);
-            InitializeFromSaveData();
-
-            InitializeFilters();
-
-            UpdateText();
-
+            if (!initialized && constructable._constructed && transform.parent != null)
+            {
+                Initialize();
+            }
         }
 
 		public void SetPicker(AutosortTypePicker picker)
@@ -151,7 +140,10 @@ namespace AutosortLockers
 					string filtersText = string.Join("\n", currentFilters.Select((f) => f.IsCategory() ? "[" + f.GetString() + "]" : f.GetString()).ToArray());
 					text.text = filtersText;
 				}
-			}
+
+				saveData.FilterData = GetNewVersion(currentFilters);
+				SettingModified();
+            }
 		}
 
 		internal void AddItem(Pickupable item)
@@ -258,12 +250,6 @@ namespace AutosortLockers
 
 		private void Update()
 		{
-
-			if(!initialized && constructable._constructed && transform.parent != null )
-			{
-				Initialize();
-			}
-
             if (!initialized || !constructable._constructed)
 			{
 				return;
@@ -287,11 +273,6 @@ namespace AutosortLockers
 			}
 
 			container.enabled = ShouldEnableContainer();
-
-			if (SaveLoadManager.main != null && SaveLoadManager.main.isSaving && !Mod.IsSaving())
-			{
-				Mod.Save();
-			}
 
 			UpdateQuantityText();
 		}
@@ -380,15 +361,16 @@ namespace AutosortLockers
 			customizeButton.onClick = ShowCustomizeMenu;
 
 			saveData = GetSaveData();
-			InitializeFromSaveData();
+
+            InitializeFromSaveData();
 
 			InitializeFilters();
 
 			UpdateText();
 
-			CreatePicker();
-
             UWE.CoroutineHost.StartCoroutine(CreateCustomizeScreen(background, saveData));
+
+            CreatePicker();
 
             initialized = true;
 
@@ -404,7 +386,7 @@ namespace AutosortLockers
 			customizeButtonImage.color = saveData.ButtonsColor.ToColor();
 			text.color = saveData.OtherTextColor.ToColor();
 			quantityText.color = saveData.ButtonsColor.ToColor();
-			SetLockerColor(saveData.LockerColor.ToColor());
+            SetLockerColor(saveData.LockerColor.ToColor());
 		}
 
 		private void SetLockerColor(Color color)
@@ -419,7 +401,7 @@ namespace AutosortLockers
 		private SaveDataEntry GetSaveData()
 		{
 			var prefabIdentifier = GetComponent<PrefabIdentifier>();
-			var id = prefabIdentifier?.Id ?? string.Empty;
+			var id = prefabIdentifier.id;
 
 			return Mod.GetSaveData(id);
 		}
@@ -448,7 +430,7 @@ namespace AutosortLockers
 				}
 				else
 				{
-					validItems[filter.Types[0]] = filter;
+					validItems[(TechType)filter.Types[0]] = filter;
 				}
 			}
 
@@ -484,10 +466,21 @@ namespace AutosortLockers
 		{
 			SetPicker(AutosortTypePicker.Create(transform, textPrefab));
 
-			picker.transform.localPosition = background.canvas.transform.localPosition + new Vector3(0, 0, 0.04f);
+
+            picker.transform.localPosition = background.gameObject.transform.parent.localPosition + new Vector3(0, 0, 0.04f);
+
             picker.Initialize(this);
 			picker.gameObject.SetActive(false);
 		}
+
+		private void SettingModified() {
+
+			var id = this.GetComponent<PrefabIdentifier>().id;
+
+            Mod.saveData.Entries[id] = saveData;
+
+			InitializeFromSaveData();
+        }
 
 		private IEnumerator CreateCustomizeScreen(Image background, SaveDataEntry saveData)
 		{
@@ -495,33 +488,9 @@ namespace AutosortLockers
 			yield return CustomizeScreen.Create(background.transform, saveData, result);
 			customizeScreen = result.Get();
 
-            customizeScreen.onModified += InitializeFromSaveData;
+            customizeScreen.onModified += SettingModified;
             customizeScreen.Initialize(saveData);
             customizeScreen.gameObject.SetActive(false);
-		}
-
-		public void Save(SaveData saveDataList)
-		{
-			var prefabIdentifier = GetComponent<PrefabIdentifier>();
-			var id = prefabIdentifier.Id;
-
-			if (saveData == null)
-			{
-				saveData = new SaveDataEntry() { Id = id };
-			}
-
-			saveData.Id = id;
-			saveData.FilterData = currentFilters;
-			saveData.Label = label.text;
-			saveData.LabelColor = label.color;
-			saveData.IconColor = icon.color;
-			saveData.OtherTextColor = text.color;
-			saveData.ButtonsColor = configureButtonImage.color;
-
-			var meshRenderer = GetComponentInChildren<MeshRenderer>();
-			saveData.LockerColor = meshRenderer.material.color;
-
-			saveDataList.Entries.Add(saveData);
 		}
 
 		public IEnumerator ShowPlus()
@@ -558,56 +527,64 @@ namespace AutosortLockers
 				var customPrefab = new CustomPrefab(Info);
 				var clonePrefab = new CloneTemplate(Info, TechType.SmallLocker);
 
-				clonePrefab.ModifyPrefab += obj => 
+				clonePrefab.ModifyPrefab += obj =>
 				{
-                    var triggerCull = obj.GetComponentInChildren<TriggerCull>();
-                    StorageContainer container = obj.GetComponent<StorageContainer>();
-                    container.width = Mod.config.ReceptacleWidth;
-                    container.height = Mod.config.ReceptacleHeight;
-                    container.container.Resize(Mod.config.ReceptacleWidth, Mod.config.ReceptacleHeight);
+					var TriggerCull = obj.GetComponentInChildren<TriggerCull>();
+					var StorageContainer = obj.GetComponent<StorageContainer>();
 
-                    var meshRenderers = obj.GetComponentsInChildren<MeshRenderer>();
-                    foreach (var meshRenderer in meshRenderers)
-                    {
-                        meshRenderer.material.color = new Color(0.3f, 0.3f, 0.3f);
-                    }
-                    var canvas = LockerPrefabShared.CreateCanvas(obj.transform);
-                    var autosortTarget = obj.AddComponent<AutosortTarget>();
-                    autosortTarget.background = LockerPrefabShared.CreateBackground(canvas.transform);
+					StorageContainer.width = AutosortConfig.ReceptacleWidth.Value;
+                    StorageContainer.height = AutosortConfig.ReceptacleHeight.Value;
 
-                    triggerCull.objectToCull = canvas.gameObject;
+                    StorageContainer.container.Resize(AutosortConfig.ReceptacleWidth.Value, AutosortConfig.ReceptacleHeight.Value);
 
-                    autosortTarget.textPrefab = Instantiate(obj.GetComponentInChildren<TextMeshProUGUI>());
-                    var label = obj.FindChild("Label");
-                    DestroyImmediate(label);
+					var meshRenderers = obj.GetComponentsInChildren<MeshRenderer>();
+					foreach ( var meshRenderer in meshRenderers )
+					{
+						meshRenderer.material.color = new Color(0.3f, 0.3f, 0.3f);
+					}
 
+					var canvas = LockerPrefabShared.CreateCanvas(obj.transform);
+					var autosortTarget = obj.AddComponent<AutosortTarget>();
+					autosortTarget.background = LockerPrefabShared.CreateBackground(canvas.transform);
 
-                    autosortTarget.icon = LockerPrefabShared.CreateIcon(autosortTarget.background.transform, autosortTarget.textPrefab.color, 70);
-                    autosortTarget.text = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, -20, 12, "Any");
+					TriggerCull.objectToCull = canvas.gameObject;
 
-                    autosortTarget.label = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 100, 12, "Locker");
+					var tPrefab = obj.GetComponentInChildren<TextMeshProUGUI>();
 
-                    autosortTarget.background.gameObject.SetActive(false);
-                    autosortTarget.icon.gameObject.SetActive(false);
-                    autosortTarget.text.gameObject.SetActive(false);
+                    tPrefab.transform.parent = canvas.transform;
+					tPrefab.gameObject.SetActive(false);
 
-                    autosortTarget.plus = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 0, 30, "+");
-                    autosortTarget.plus.color = new Color(autosortTarget.textPrefab.color.r, autosortTarget.textPrefab.color.g, autosortTarget.textPrefab.color.g, 0);
-                    autosortTarget.plus.rectTransform.anchoredPosition += new Vector2(30, 70);
+                    autosortTarget.textPrefab = tPrefab;
+					var label = obj.FindChild("Label");
+					DestroyImmediate(label);
 
-                    autosortTarget.quantityText = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 0, 10, "XX");
-                    autosortTarget.quantityText.rectTransform.anchoredPosition += new Vector2(-35, -104);
+					autosortTarget.icon = LockerPrefabShared.CreateIcon(autosortTarget.background.transform, autosortTarget.textPrefab.color, 70);
+					autosortTarget.text = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, -20, 12, "Any");
 
-                    autosortTarget.configureButton = ConfigureButton.Create(autosortTarget.background.transform, autosortTarget.textPrefab.color, 40);
-                    autosortTarget.configureButtonImage = autosortTarget.configureButton.GetComponent<Image>();
-                    autosortTarget.customizeButton = ConfigureButton.Create(autosortTarget.background.transform, autosortTarget.textPrefab.color, 20);
-                    autosortTarget.customizeButtonImage = autosortTarget.customizeButton.GetComponent<Image>();
-                };
+					autosortTarget.label = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 100, 12, "Locker");
+
+					autosortTarget.background.gameObject.SetActive(false);
+					autosortTarget.icon.gameObject.SetActive(false);
+					autosortTarget.text.gameObject.SetActive(false);
+
+					autosortTarget.plus = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 0, 30, "+");
+					autosortTarget.plus.color = new Color(autosortTarget.textPrefab.color.r, autosortTarget.textPrefab.color.g, autosortTarget.textPrefab.color.g, 0);
+					autosortTarget.plus.rectTransform.anchoredPosition += new Vector2(30, 70);
+
+					autosortTarget.quantityText = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 0, 10, "XX");
+					autosortTarget.quantityText.rectTransform.anchoredPosition += new Vector2(-35, -104);
+
+					autosortTarget.configureButton = ConfigureButton.Create(autosortTarget.background.transform, autosortTarget.textPrefab.color, 40);
+					autosortTarget.configureButtonImage = autosortTarget.configureButton.GetComponent<Image>();
+
+					autosortTarget.customizeButton = ConfigureButton.Create(autosortTarget.background.transform, autosortTarget.textPrefab.color, 20);
+					autosortTarget.customizeButtonImage = autosortTarget.customizeButton.GetComponent<Image>();
+				};
 
 				var recipe = new RecipeData
 				{
-                    craftAmount = 1,
-                    Ingredients = Mod.config.EasyBuild
+					craftAmount = 1,
+					Ingredients = AutosortConfig.EasyBuild.Value
                     ? new List<Ingredient>
                     {
                         new Ingredient(TechType.Titanium, 2)
@@ -647,9 +624,11 @@ namespace AutosortLockers
 				clonePrefab.ModifyPrefab += obj =>
 				{
 					StorageContainer container = obj.GetComponent<StorageContainer>();
-					container.width = Mod.config.StandingReceptacleWidth;
-					container.height = Mod.config.StandingReceptacleHeight;
-					container.container.Resize(Mod.config.StandingReceptacleWidth, Mod.config.StandingReceptacleHeight);
+					container.width = AutosortConfig.StandingReceptacleWidth.Value;
+
+					container.height = AutosortConfig.StandingReceptacleHeight.Value;
+
+                    container.container.Resize(AutosortConfig.StandingReceptacleWidth.Value, AutosortConfig.StandingReceptacleHeight.Value);
 
 					var meshRenderers = obj.GetComponentsInChildren<MeshRenderer>();
 					foreach (var meshRenderer in meshRenderers)
@@ -659,13 +638,9 @@ namespace AutosortLockers
 
 					var autosortTarget = obj.AddComponent<AutosortTarget>();
 
+					autosortTarget.textPrefab = Instantiate(textPrefab, obj.transform);
 
-					autosortTarget.textPrefab = Instantiate(textPrefab);
-
-					var label = obj.FindChild("Label");
-					DestroyImmediate(label);
-
-					var canvas = LockerPrefabShared.CreateCanvas(obj.transform);
+                    var canvas = LockerPrefabShared.CreateCanvas(obj.transform);
 					canvas.transform.localPosition = new Vector3(0, 1.1f, 0.25f);
 
 					autosortTarget.background = LockerPrefabShared.CreateBackground(canvas.transform);
@@ -694,7 +669,7 @@ namespace AutosortLockers
                 var recipe = new RecipeData
                 {
                     craftAmount = 1,
-                    Ingredients = Mod.config.EasyBuild
+                    Ingredients = AutosortConfig.EasyBuild.Value
                     ? new List<Ingredient>
                     {
                         new Ingredient(TechType.Titanium, 2),

@@ -28,8 +28,6 @@ namespace AutosortLockers.Patches
 				{
 					return;
 				}
-
-				Mod.LoadSaveData();
 				initialized = true;
 			}
 		}

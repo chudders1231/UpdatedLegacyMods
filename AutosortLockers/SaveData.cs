@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Common.Mod;
+using Nautilus.Json;
 
 namespace AutosortLockers
 {
 	[Serializable]
 	public class SaveDataEntry
 	{
-		public string Id;
 		public List<AutosorterFilter> FilterData = new List<AutosorterFilter>();
 		public string Label = "Locker";
 		public SerializableColor LabelColor = Color.white;
@@ -19,8 +19,8 @@ namespace AutosortLockers
 	}
 
 	[Serializable]
-	public class SaveData
+	public class SaveData : SaveDataCache
 	{
-		public List<SaveDataEntry> Entries = new List<SaveDataEntry>();
+		public Dictionary<string, SaveDataEntry> Entries = new Dictionary<string, SaveDataEntry>();
 	}
 }

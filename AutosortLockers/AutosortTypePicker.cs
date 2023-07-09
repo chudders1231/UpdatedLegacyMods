@@ -170,7 +170,12 @@ namespace AutosortLockers
 
 		public static AutosortTypePicker Create(Transform parent, TextMeshProUGUI textPrefab)
 		{
-			var picker = LockerPrefabShared.CreateCanvas(parent).gameObject.AddComponent<AutosortTypePicker>();
+
+            textPrefab.fontSizeMin = 6;
+            textPrefab.fontSizeMax = 8;
+            textPrefab.enableAutoSizing = true;
+
+            var picker = LockerPrefabShared.CreateCanvas(parent).gameObject.AddComponent<AutosortTypePicker>();
 			picker.GetComponent<Canvas>().sortingLayerID = 0;
 			picker.gameObject.SetActive(false);
 

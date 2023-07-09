@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Nautilus.Handlers;
+using Nautilus.Json;
 using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
@@ -18,110 +20,110 @@ namespace Common.Mod
 		//private static List<TechType> pickupableTypes;
 		private static MonoBehaviour coroutineObject;
 
-		public static ConfigT LoadConfig<ConfigT>(string configFilePath) where ConfigT : class, new()
-		{
-			if (!File.Exists(configFilePath))
-			{
-				return WriteDefaultConfig<ConfigT>(configFilePath);
-			}
+		//public static ConfigT LoadConfig<ConfigT>(string configFilePath) where ConfigT : class, new()
+		//{
+		//	if (!File.Exists(configFilePath))
+		//	{
+		//		return WriteDefaultConfig<ConfigT>(configFilePath);
+		//	}
 
-			try
-			{
-				string serialilzedConfig = File.ReadAllText(configFilePath);
+		//	try
+		//	{
+		//		string serialilzedConfig = File.ReadAllText(configFilePath);
 
-				if (string.IsNullOrEmpty(serialilzedConfig))
-				{
-					return new ConfigT();
-				}
+		//		if (string.IsNullOrEmpty(serialilzedConfig))
+		//		{
+		//			return new ConfigT();
+		//		}
 
-				ConfigT config = JsonConvert.DeserializeObject<ConfigT>(serialilzedConfig);
+		//		ConfigT config = JsonConvert.DeserializeObject<ConfigT>(serialilzedConfig);
 
-				if (config == null)
-				{
-					config = new ConfigT();
-				}
+		//		if (config == null)
+		//		{
+		//			config = new ConfigT();
+		//		}
 
-				return config;
-			}
-			catch
-			{
-				return WriteDefaultConfig<ConfigT>(configFilePath);
-			}
-		}
+		//		return config;
+		//	}
+		//	catch
+		//	{
+		//		return WriteDefaultConfig<ConfigT>(configFilePath);
+		//	}
+		//}
 
-		private static ConfigT WriteDefaultConfig<ConfigT>(string configFilePath)
-			 where ConfigT : class, new()
-		{
+		//private static ConfigT WriteDefaultConfig<ConfigT>(string configFilePath)
+		//	 where ConfigT : class, new()
+		//{
 
-			var defaultConfig = new ConfigT();
-			string serialilzedConfig = JsonConvert.SerializeObject(defaultConfig, Formatting.Indented);
-			File.WriteAllText(configFilePath, serialilzedConfig);
-			return defaultConfig;
-		}
+		//	var defaultConfig = new ConfigT();
+		//	string serialilzedConfig = JsonConvert.SerializeObject(defaultConfig, Formatting.Indented);
+		//	File.WriteAllText(configFilePath, serialilzedConfig);
+		//	return defaultConfig;
+		//}
 
-		public static void ValidateConfigValue<T, ConfigT>(string field, T min, T max, ref ConfigT config, ref ConfigT defaultConfig) where T : IComparable
-		{
-			PropertyInfo fieldInfo = typeof(ConfigT).GetProperty(field, BindingFlags.Public | BindingFlags.Instance);
-			var value = (T)fieldInfo.GetValue(config, null);
-			if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
-			{
-				Console.WriteLine("Config value for '{0}' ({1}) was not valid. Must be between {2} and {3}",
-					field,
-					value,
-					min,
-					max
-				);
-				fieldInfo.SetValue(config, fieldInfo.GetValue(defaultConfig, null), null);
-			}
-		}
+		//public static void ValidateConfigValue<T, ConfigT>(string field, T min, T max, ref ConfigT config, ref ConfigT defaultConfig) where T : IComparable
+		//{
+		//	PropertyInfo fieldInfo = typeof(ConfigT).GetProperty(field, BindingFlags.Public | BindingFlags.Instance);
+		//	var value = (T)fieldInfo.GetValue(config, null);
+		//	if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
+		//	{
+		//		Console.WriteLine("Config value for '{0}' ({1}) was not valid. Must be between {2} and {3}",
+		//			field,
+		//			value,
+		//			min,
+		//			max
+		//		);
+		//		fieldInfo.SetValue(config, fieldInfo.GetValue(defaultConfig, null), null);
+		//	}
+		//}
 
-		public static void LoadSaveData<SaveDataT>(string fileName, Action<SaveDataT> onSuccess) where SaveDataT : new()
-		{
-			StartCoroutine(LoadInternal<SaveDataT>(fileName, onSuccess));
-		}
+		//public static void LoadSaveData<SaveDataT>(string fileName, Action<SaveDataT> onSuccess) where SaveDataT : new()
+		//{
+		//	StartCoroutine(LoadInternal<SaveDataT>(fileName, onSuccess));
+		//}
 
-		private static IEnumerator LoadInternal<SaveDataT>(string fileName, Action<SaveDataT> onSuccess)
-		{
-			UserStorage userStorage = PlatformUtils.main.GetUserStorage();
-			var files = new List<string> { fileName };
-			UserStorageUtils.LoadOperation loadOperation = userStorage.LoadFilesAsync(SaveLoadManager.main.GetCurrentSlot(), files);
-			yield return loadOperation;
-			if (loadOperation.GetSuccessful())
-			{
-				string stringData = Encoding.ASCII.GetString(loadOperation.files[fileName]);
-				SaveDataT saveData = JsonConvert.DeserializeObject<SaveDataT>(stringData);
-				onSuccess(saveData);
-			}
-			else
-			{
-				Console.WriteLine("Load Failed: " + loadOperation.errorMessage);
-			}
-		}
+		//private static IEnumerator LoadInternal<SaveDataT>(string fileName, Action<SaveDataT> onSuccess)
+		//{
+		//	UserStorage userStorage = PlatformUtils.main.GetUserStorage();
+		//	var files = new List<string> { fileName };
+		//	UserStorageUtils.LoadOperation loadOperation = userStorage.LoadFilesAsync(SaveLoadManager.main.GetCurrentSlot(), files);
+		//	yield return loadOperation;
+		//	if (loadOperation.GetSuccessful())
+		//	{
+		//		string stringData = Encoding.ASCII.GetString(loadOperation.files[fileName]);
+		//		SaveDataT saveData = JsonConvert.DeserializeObject<SaveDataT>(stringData);
+		//		onSuccess(saveData);
+		//	}
+		//	else
+		//	{
+		//		Console.WriteLine("Load Failed: " + loadOperation.errorMessage);
+		//	}
+		//}
 
-		public static void Save<SaveDataT>(SaveDataT newSaveData, string fileName, Action onSaveComplete = null)
-		{
-			if (newSaveData != null)
-			{
-				string saveDataJson = JsonConvert.SerializeObject(newSaveData);
-				StartCoroutine(SaveInternal(saveDataJson, fileName, onSaveComplete));
-			}
-		}
+		//public static void Save<SaveDataT>(SaveDataT newSaveData, string fileName, Action onSaveComplete = null)
+		//{
+		//	if (newSaveData != null)
+		//	{
+		//		string saveDataJson = JsonConvert.SerializeObject(newSaveData);
+		//		StartCoroutine(SaveInternal(saveDataJson, fileName, onSaveComplete));
+		//	}
+		//}
 
-		private static IEnumerator SaveInternal(string saveData, string fileName, Action onSaveComplete = null)
-		{
-			UserStorage userStorage = PlatformUtils.main.GetUserStorage();
-			var saveFileMap = new Dictionary<string, byte[]>
-			{
-				{ fileName, Encoding.ASCII.GetBytes(saveData) }
-			};
-			SaveLoadManager.main.GetCurrentSlot();
-			UserStorageUtils.SaveOperation saveOp = userStorage.SaveFilesAsync(SaveLoadManager.main.GetCurrentSlot(), saveFileMap);
-			yield return saveOp;
-			if (saveOp.GetSuccessful())
-			{
-				onSaveComplete?.Invoke();
-			}
-		}
+		//private static IEnumerator SaveInternal(string saveData, string fileName, Action onSaveComplete = null)
+		//{
+		//	UserStorage userStorage = PlatformUtils.main.GetUserStorage();
+		//	var saveFileMap = new Dictionary<string, byte[]>
+		//	{
+		//		{ fileName, Encoding.ASCII.GetBytes(saveData) }
+		//	};
+		//	SaveLoadManager.main.GetCurrentSlot();
+		//	UserStorageUtils.SaveOperation saveOp = userStorage.SaveFilesAsync(SaveLoadManager.main.GetCurrentSlot(), saveFileMap);
+		//	yield return saveOp;
+		//	if (saveOp.GetSuccessful())
+		//	{
+		//		onSaveComplete?.Invoke();
+		//	}
+		//}
 
 		public static void PrintObject(GameObject obj, string indent = "", bool includeMaterials = false)
 		{

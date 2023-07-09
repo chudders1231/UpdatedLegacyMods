@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -36,6 +37,23 @@ namespace AutosortLockers
 
 	public static class AutosorterCategoryData
 	{
+		public static Dictionary<string, List<TechType>> defaultCategories = new Dictionary<string, List<TechType>>() 
+		{
+			{"Fish", Fish},
+            {"Alterra Artifacts", AlterraArtifacts},
+            {"Mysterious Tablets", MysteriousTablets},
+            {"CreatureEggs", CreatureEggs},
+            {"Food", Food},
+            {"Water", Water},
+            {"Scanner Room Upgrades", ScannerRoomUpgrades},
+            {"Cyclops Upgrades", CyclopsUpgrades},
+            {"Prawn Suit Upgrades", PrawnSuitUpgrades},
+            {"Seamoth Upgrades", SeamothUpgrades},
+            {"Equipment", Equipment},
+            {"Tools", Tools},
+            {"Torpedos", Torpedoes},
+        };
+
 		public static List<TechType> Fish = new List<TechType> {
 			TechType.Bladderfish,
 			TechType.Boomerang,
@@ -443,7 +461,7 @@ namespace AutosortLockers
 	public class AutosorterFilter
 	{
 		public string Category;
-		public List<TechType> Types = new List<TechType>();
+		public List<int> Types = new List<int>();
 
 		public bool IsCategory() => !string.IsNullOrEmpty(Category);
 
@@ -456,13 +474,13 @@ namespace AutosortLockers
 			else
 			{
 				var textInfo = (new CultureInfo("en-US", false)).TextInfo;
-				return textInfo.ToTitleCase(Language.main.Get(Types[0]));
+				return textInfo.ToTitleCase(Language.main.Get((TechType)Types[0]));
 			}
 		}
 
 		public bool IsTechTypeAllowed(TechType techType)
 		{
-			return Types.Contains(techType);
+			return Types.Contains((int)techType);
 		}
 
 		public bool IsSame(AutosorterFilter other)
@@ -485,14 +503,14 @@ namespace AutosortLockers
 			return Filters;
 		}
 
-		public static List<TechType> GetOldFilter(string oldCategory, out bool success, out string newCategory)
+		public static List<int> GetOldFilter(string oldCategory, out bool success, out string newCategory)
 		{
 			var category = AutoSorterCategory.None;
 			if (!Int32.TryParse(oldCategory, out int oldCategoryInt))
 			{
 				newCategory = "";
 				success = false;
-				return new List<TechType>();
+				return new List<int>();
 			}
 			category = (AutoSorterCategory)oldCategoryInt;
 			newCategory = category.ToString();
@@ -501,29 +519,29 @@ namespace AutosortLockers
 			switch (category)
 			{
 				default:
-				case AutoSorterCategory.None: return AutosorterCategoryData.IndividualItems;
+				case AutoSorterCategory.None: return AutosorterCategoryData.IndividualItems.Cast<int>().ToList();
 
-				case AutoSorterCategory.Food: return AutosorterCategoryData.Food;
-				case AutoSorterCategory.Water: return AutosorterCategoryData.Water;
-				case AutoSorterCategory.PlantsAndSeeds: return AutosorterCategoryData.PlantsAndSeeds;
-				case AutoSorterCategory.Metals: return AutosorterCategoryData.Metals;
-				case AutoSorterCategory.NaturalMaterials: return AutosorterCategoryData.NaturalMaterials;
-				case AutoSorterCategory.SyntheticMaterials: return AutosorterCategoryData.SyntheticMaterials;
-				case AutoSorterCategory.Electronics: return AutosorterCategoryData.Electronics;
-				case AutoSorterCategory.CrystalMaterials: return AutosorterCategoryData.CrystalMaterials;
-				case AutoSorterCategory.Batteries: return AutosorterCategoryData.Batteries;
-				case AutoSorterCategory.Fish: return AutosorterCategoryData.Fish;
-				case AutoSorterCategory.Eggs: return AutosorterCategoryData.CreatureEggs;
-				case AutoSorterCategory.Tools: return AutosorterCategoryData.Tools;
-				case AutoSorterCategory.Equipment: return AutosorterCategoryData.Equipment;
-				case AutoSorterCategory.MysteriousTablets: return AutosorterCategoryData.MysteriousTablets;
-				case AutoSorterCategory.ScannerRoomUpgrades: return AutosorterCategoryData.ScannerRoomUpgrades;
-				case AutoSorterCategory.GeneralUpgrades: return AutosorterCategoryData.GeneralUpgrades;
-				case AutoSorterCategory.SeamothUpgrades: return AutosorterCategoryData.SeamothUpgrades;
-				case AutoSorterCategory.PrawnSuitUpgrades: return AutosorterCategoryData.PrawnSuitUpgrades;
-				case AutoSorterCategory.CyclopsUpgrades: return AutosorterCategoryData.CyclopsUpgrades;
-				case AutoSorterCategory.Torpedoes: return AutosorterCategoryData.Torpedoes;
-				case AutoSorterCategory.AlterraStuff: return AutosorterCategoryData.AlterraArtifacts;
+				case AutoSorterCategory.Food: return AutosorterCategoryData.Food.Cast<int>().ToList();
+				case AutoSorterCategory.Water: return AutosorterCategoryData.Water.Cast<int>().ToList();
+				case AutoSorterCategory.PlantsAndSeeds: return AutosorterCategoryData.PlantsAndSeeds.Cast<int>().ToList();
+				case AutoSorterCategory.Metals: return AutosorterCategoryData.Metals.Cast<int>().ToList();
+				case AutoSorterCategory.NaturalMaterials: return AutosorterCategoryData.NaturalMaterials.Cast<int>().ToList();
+				case AutoSorterCategory.SyntheticMaterials: return AutosorterCategoryData.SyntheticMaterials.Cast<int>().ToList();
+				case AutoSorterCategory.Electronics: return AutosorterCategoryData.Electronics.Cast<int>().ToList();
+				case AutoSorterCategory.CrystalMaterials: return AutosorterCategoryData.CrystalMaterials.Cast<int>().ToList();
+				case AutoSorterCategory.Batteries: return AutosorterCategoryData.Batteries.Cast<int>().ToList();
+				case AutoSorterCategory.Fish: return AutosorterCategoryData.Fish.Cast<int>().ToList();
+				case AutoSorterCategory.Eggs: return AutosorterCategoryData.CreatureEggs.Cast<int>().ToList();
+				case AutoSorterCategory.Tools: return AutosorterCategoryData.Tools.Cast<int>().ToList();
+				case AutoSorterCategory.Equipment: return AutosorterCategoryData.Equipment.Cast<int>().ToList();
+				case AutoSorterCategory.MysteriousTablets: return AutosorterCategoryData.MysteriousTablets.Cast<int>().ToList();
+				case AutoSorterCategory.ScannerRoomUpgrades: return AutosorterCategoryData.ScannerRoomUpgrades.Cast<int>().ToList();
+				case AutoSorterCategory.GeneralUpgrades: return AutosorterCategoryData.GeneralUpgrades.Cast<int>().ToList();
+				case AutoSorterCategory.SeamothUpgrades: return AutosorterCategoryData.SeamothUpgrades.Cast<int>().ToList();
+				case AutoSorterCategory.PrawnSuitUpgrades: return AutosorterCategoryData.PrawnSuitUpgrades.Cast<int>().ToList();
+				case AutoSorterCategory.CyclopsUpgrades: return AutosorterCategoryData.CyclopsUpgrades.Cast<int>().ToList();
+				case AutoSorterCategory.Torpedoes: return AutosorterCategoryData.Torpedoes.Cast<int>().ToList();
+				case AutoSorterCategory.AlterraStuff: return AutosorterCategoryData.AlterraArtifacts.Cast<int>().ToList();
 			}
 		}
 
@@ -540,7 +558,7 @@ namespace AutosortLockers
 			var file = JsonConvert.DeserializeObject<List<AutosorterFilter>>(File.ReadAllText(path));
 			Filters = file.Where((f) => f.IsCategory()).ToList();
 			
-			if (Mod.config.ShowAllItems)
+			if (AutosortConfig.ShowAllItems.Value)
 			{
 				var typeRefPath = Mod.GetAssetPath("type_reference.json");
 				List<TypeReference> typeReferences =
@@ -554,15 +572,16 @@ namespace AutosortLockers
 
 				foreach (var typeRef in typeReferences)
 				{
-					Filters.Add(new AutosorterFilter() {Category = "", Types = new List<TechType> {typeRef.Value}});
+					var v = typeRef.Value;
+					Filters.Add(new AutosorterFilter() {Category = "", Types = new List<int> {(int)v}});
 				}
 				return;
 			}
 			var sorted = file.Where(f => !f.IsCategory()).ToList();
 			sorted.Sort((x, y) =>
 			{
-				string xName = Language.main.Get(x.Types.First());
-				string yName = Language.main.Get(y.Types.First());
+				string xName = Language.main.Get((TechType)x.Types.First());
+				string yName = Language.main.Get((TechType)y.Types.First());
 				return string.Compare(xName.ToLowerInvariant(), yName.ToLowerInvariant(), StringComparison.Ordinal);
 			});
 			foreach (var filter in sorted)
@@ -571,7 +590,7 @@ namespace AutosortLockers
 			}
 		}
 
-		private static void AddEntry(string category, List<TechType> types)
+		private static void AddEntry(string category, List<int> types)
 		{
 			Filters.Add(new AutosorterFilter {
 				Category = category,
@@ -579,11 +598,11 @@ namespace AutosortLockers
 			});
 		}
 
-		private static void AddEntry(TechType type)
+		private static void AddEntry(int type)
 		{
 			Filters.Add(new AutosorterFilter {
 				Category = "",
-				Types = new List<TechType> { type }
+				Types = new List<int> { type }
 			});
 		}
 	}
