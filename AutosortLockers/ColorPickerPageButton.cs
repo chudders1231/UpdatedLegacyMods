@@ -22,7 +22,10 @@ namespace AutosortLockers
 
 		public void OnPointerClick(PointerEventData eventData)
 		{
-			onClick();
+			if (eventData.button == PointerEventData.InputButton.Left)
+			{
+				onClick();
+			}
 		}
 
 		public void Initialize(string spriteName, Color color)

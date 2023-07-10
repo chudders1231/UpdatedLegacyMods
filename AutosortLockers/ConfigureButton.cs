@@ -13,7 +13,7 @@ namespace AutosortLockers
 		
 		public void OnPointerClick(PointerEventData eventData)
 		{
-			if (enabled)
+			if (enabled && eventData.button == PointerEventData.InputButton.Left)
 			{
 				onClick();
 			}

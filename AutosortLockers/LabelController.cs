@@ -37,7 +37,10 @@ namespace AutosortLockers
 
 		public void OnPointerClick(PointerEventData eventData)
 		{
-			uGUI.main.userInput.RequestString("Label", "Submit", target.Label, 25, new uGUI_UserInput.UserInputCallback(SetLabel));
+			if (eventData.button == PointerEventData.InputButton.Left)
+			{
+                uGUI.main.userInput.RequestString("Label", "Submit", target.Label, 25, new uGUI_UserInput.UserInputCallback(SetLabel));
+            }
 		}
 
 		public void SetLabel(string newLabel)

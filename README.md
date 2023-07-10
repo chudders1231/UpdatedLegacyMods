@@ -13,7 +13,7 @@
     <br />
     <br />
     <a href="https://github.com/chudders1231/UpdatedLegacyMods/issues">Report Bug</a>
-    ·
+    ï¿½
     <a href="https://github.com/chudders1231/UpdatedLegacyMods/issues">Request Feature</a>
   </p>
 </div>
@@ -56,6 +56,25 @@ This project aims to slowly port older legacy mods to nautilus that i have permi
 
 Keep an eye out on the Subnautica Modding discord for test builds, and will hopefully add them to Submodica when the mod has the necessary polish.
 
+## **Prequisites**
+There are some mods that the updated versions will need to work, and some are not necessary but highly recommended. Please download the relevant mods for the game you're modding whether it be Subnautica or Below Zero as not all mods work with both. BepInEx Tweaks works with both for example so you can use the mod in both.
+
+### **Required**
+| Mod  | Information | SN | BZ |
+| - | - | - | - |
+| **BepInEx pack for Subnautica** | BepInEx is the framework that allows us to mod Subnautica, and this pack is tailored for a positive Subnautica modding experience. | [Nexus](https://www.nexusmods.com/subnautica/mods/1108) | [Nexus](https://www.nexusmods.com/subnauticabelowzero/mods/344) |
+| **Nautilus** | Nautilus is an incredible library with the goal to make mod development quick, easy, efficient, and scalable. | [Nexus](https://www.nexusmods.com/subnautica/mods/1262) | [Nexus](https://www.nexusmods.com/subnauticabelowzero/mods/373) |
+
+### **Highly Recommended**
+| Mod  | Information | SN | BZ |
+| - | - | - | - |
+| **BepInEx Tweaks** | Due to the nature of modding, some mods break when backing out of a save and requires a restart. This mod fixes this and many other issues relating to subnautica modding. | [Nexus](https://www.nexusmods.com/subnautica/mods/1104) | [Nexus](https://www.nexusmods.com/subnautica/mods/1104) |
+
+## **Updated Mods**
+| Mod | Description | SN | BZ |
+| - | - | - | - |
+| [Autosort Lockers](https://github.com/chudders1231/UpdatedLegacyMods/tree/master/AutosortLockers)| Automatically sort and distribute items to designated lockers throughout your base. | TBD | TBD |
+
 
 ## **Autosort Lockers**
 This mod was originally created by RandyKnapp and has created some powerful and well-polished mods. It provides an autosorting locker than takes items, and delivers them to recepticles based on your choice of filters.
@@ -66,25 +85,6 @@ This mod was originally created by RandyKnapp and has created some powerful and 
 - Wall locker recepticle
 - Standing locker recepticle
 - Customise the colour of the locker and it's panel
-
-
-## **Prerequisites**
-
-#### **Required**
-- [**BepInEx pack for Subnautica**](https://www.nexusmods.com/subnautica/mods/1108)
-- [**Nautilus**](https://www.nexusmods.com/subnautica/mods/1262)
-
-#### Highly Recommended
-- [**BepInEx Tweaks**](https://www.nexusmods.com/subnautica/mods/1104) - Without this, many BepInEx plugins will be disabled whenever you back out to the main menu and will not work again until you restart the game.
-
-### **Installing Autosort Lockers**
-
-#### Manual
-
-1. Click the `Manual Download` button under the main file section of the mod. This will be the most recent version:
-    - [Coming soon...]("#")
-2. Navigate to your `Subnautica Game Directory`
-3. Open the zip file and put the **AutosortLockers** folder into the `BepInEx/plugins` folder.
 
 ### **Default Usage**
 Build yourself a nice little base, and build the <span style="color: red;">Autosorter</span> on the wall. Follow that up with building a <span style="color: Lime">Autosort Recepticle</span> anywhere in the base.

@@ -10,7 +10,7 @@ namespace AutosortLockers
 		
 		public void OnPointerClick(PointerEventData eventData)
 		{
-			if (target != null && enabled)
+			if (target != null && enabled && eventData.button == PointerEventData.InputButton.Left)
 			{
 				target.HideConfigureMenu();
 			}

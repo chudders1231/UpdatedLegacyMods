@@ -23,7 +23,7 @@ namespace AutosortLockers
 		
 		public void OnPointerClick(PointerEventData eventData)
 		{
-			if (canChangePage)
+			if (canChangePage && eventData.button == PointerEventData.InputButton.Left)
 			{
 				target.ChangePage(pageOffset);
 			}

@@ -28,7 +28,10 @@ namespace AutosortLockers
 
 		public void OnPointerClick(PointerEventData eventData)
 		{
-			onClick(id);
+			if (eventData.button == PointerEventData.InputButton.Left)
+			{
+				onClick(id);
+			}
 		}
 
 		public void Initialize(int id, Color color, bool toggled, Sprite imageSprite)
