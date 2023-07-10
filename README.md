@@ -99,13 +99,11 @@ Feel free to unload your inventory, or your Prawn suit for that matter into the 
 This project will be ever changing and will be updated with new mods, and new versions of each mod with new features, optimisations, and bug fixes. Below are planned changes and updates for each mod to keep an eye out for when submitting ideas.
 
 ### <u>Autosort Lockers Roadmap</u>
-<div class="roadmap">
-    <input disabled="disabled" type="checkbox" checked="checked" class="roadmap-input"/> Update to the living large update
-    <br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Optimisation and project trimming
-    <br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> In-Game configuration
-    <br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Filter editing and new filter additions
-    <br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Auto unloading locker for vehicle storage
-</div>
+- [x] Update to the living large update
+- [ ] Optimisation and project trimming
+- [ ] In-Game configuration
+- [ ] Filter editing and new filter additions
+- [ ] Auto unloading locker for vehicle storage
 
 ## **Acknowledgments**
 | Modder | Description | Support |
@@ -113,21 +111,3 @@ This project will be ever changing and will be updated with new mods, and new ve
 | **EldrichCarMaker** | Without them, this project wouldn't have made it off the ground. They have helped me tremendously already with bug fixing and polish. |[Patreon](https://www.patreon.com/user?u=79717901)|
 | **Toebean** | A wonderfully supportive modder than has shown support in this project and wants to contribute to help refine the process. | [Linktree](https://linktr.ee/tobey.me)|
 | **Lee23** | He currently maintain Nautilus, and many other developer tools that have made the process so much smoother and provided support with tricky and niche issues. | [Github](https://github.com/LeeTwentyThree)|
-<style>
-    .roadmap{
-        width: fit-content;
-        block-size: fit-content;
-
-        margin: auto;
-    }
-    .roadmap-input[disabled] {
-      margin-left: 1em !important;
-      margin-right: 0.5em !important;
-
-    }
-    h1, h2, h3, h4, h5 
-    {
-        text-align: center;
-    }
-
-</style>
