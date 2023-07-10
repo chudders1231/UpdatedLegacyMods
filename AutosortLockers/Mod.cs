@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -9,7 +8,6 @@ using Newtonsoft.Json;
 using BepInEx;
 using HarmonyLib;
 using Nautilus.Handlers;
-using Nautilus.Json;
 using System.Linq;
 
 namespace AutosortLockers

@@ -6,6 +6,8 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a> -->
 
+
+  <img src="https://drive.google.com/uc?export=view&id=1qc0eNhWJeTJ9vEcoOHhqZp2I7GqCHOel"/>
   <h1 align="center">Subnautica - Updated Legacy Mods</h3>
 
   <p align="center">
@@ -13,7 +15,7 @@
     <br />
     <br />
     <a href="https://github.com/chudders1231/UpdatedLegacyMods/issues">Report Bug</a>
-    ï¿½
+    •
     <a href="https://github.com/chudders1231/UpdatedLegacyMods/issues">Request Feature</a>
   </p>
 </div>
@@ -24,16 +26,16 @@
   <ol>
   <li><a href="#about-the-project">About The Project</a></li>
     <li>
-      <a href="#mod-list">Mod List</a>
+      <a href="#prerequisites">Prerequisites</a>
       <ul>
-        <li><a href="#autosort-lockers">Autosort Lockers</a></li>
+        <li><a href="#required">Required</a></li>
+        <li><a href="#highly-recommended">Highly Recommended</a></li>
       </ul>
     </li>
     <li>
-      <a href="#getting-started">Getting Started</a>
+      <a href="#updated-mods">Mod List</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#autosort-lockers">Autosort Lockers</a></li>
       </ul>
     </li>
     <li>
@@ -42,7 +44,7 @@
             <li><a href="#autosort-lockers-roadmap">Autosort Lockers</a></li>
         </ul>
     </li>
-    <li><a href="#contributing">Contributing</a></li>
+    <!-- <li><a href="#contributing">Contributing</a></li> -->
     <!-- <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li> -->
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -56,7 +58,7 @@ This project aims to slowly port older legacy mods to nautilus that i have permi
 
 Keep an eye out on the Subnautica Modding discord for test builds, and will hopefully add them to Submodica when the mod has the necessary polish.
 
-## **Prequisites**
+## **Prerequisites**
 There are some mods that the updated versions will need to work, and some are not necessary but highly recommended. Please download the relevant mods for the game you're modding whether it be Subnautica or Below Zero as not all mods work with both. BepInEx Tweaks works with both for example so you can use the mod in both.
 
 ### **Required**
@@ -92,3 +94,26 @@ Build yourself a nice little base, and build the <span style="color: red;">Autos
 You can customise the filters on the recepticle by either the item name, or categories.
 
 Feel free to unload your inventory, or your Prawn suit for that matter into the autosorter, and watch it sort the items for you.
+
+## **Roadmap**
+This project will be ever changing and will be updated with new mods, and new versions of each mod with new features, optimisations, and bug fixes. Below are planned changes and updates for each mod to keep an eye out for when submitting ideas.
+
+### <u>Autosort Lockers Roadmap</u>
+<input disabled="disabled" type="checkbox" checked="checked" class="roadmap-input"/> Update to the living large update
+<br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Optimisation and project trimming
+<br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> In-Game configuration
+<br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Filter editing and new filter additions
+<br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Auto unloading locker for vehicle storage
+
+## **Acknowledgments**
+| Modder | Description | Support |
+| - | - | - |
+| **EldrichCarMaker** | Without them, this project wouldn't have made it off the ground. They have helped me tremendously already with bug fixing and polish. |[Patreon](https://www.patreon.com/user?u=79717901)|
+| **Toebean** | A wonderfully supportive modder than has shown support in this project and wants to contribute to help refine the process. | [Linktree](https://linktr.ee/tobey.me)|
+| **Lee23** | He currently maintain Nautilus, and many other developer tools that have made the process so much smoother and provided support with tricky and niche issues. | [Github](https://github.com/LeeTwentyThree)|
+<style>
+    .roadmap-input[disabled] {
+      margin-left: 1em !important;
+      margin-right: 0.5em !important;
+    }
+</style>
