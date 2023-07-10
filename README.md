@@ -21,7 +21,7 @@
 </div>
 
 <!-- TABLE OF CONTENTS -->
-<details>
+<!-- <details class="table-of-contents">
   <summary>Table of Contents</summary>
   <ol>
   <li><a href="#about-the-project">About The Project</a></li>
@@ -44,13 +44,13 @@
             <li><a href="#autosort-lockers-roadmap">Autosort Lockers</a></li>
         </ul>
     </li>
-    <!-- <li><a href="#contributing">Contributing</a></li> -->
-    <!-- <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li> -->
+     <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
-<br/>
+<br/> -->
 
 ## **About The Project**
 
@@ -99,11 +99,13 @@ Feel free to unload your inventory, or your Prawn suit for that matter into the 
 This project will be ever changing and will be updated with new mods, and new versions of each mod with new features, optimisations, and bug fixes. Below are planned changes and updates for each mod to keep an eye out for when submitting ideas.
 
 ### <u>Autosort Lockers Roadmap</u>
-<input disabled="disabled" type="checkbox" checked="checked" class="roadmap-input"/> Update to the living large update
-<br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Optimisation and project trimming
-<br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> In-Game configuration
-<br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Filter editing and new filter additions
-<br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Auto unloading locker for vehicle storage
+<div class="roadmap">
+    <input disabled="disabled" type="checkbox" checked="checked" class="roadmap-input"/> Update to the living large update
+    <br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Optimisation and project trimming
+    <br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> In-Game configuration
+    <br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Filter editing and new filter additions
+    <br/><input disabled="disabled" type="checkbox" class="roadmap-input"/> Auto unloading locker for vehicle storage
+</div>
 
 ## **Acknowledgments**
 | Modder | Description | Support |
@@ -112,8 +114,20 @@ This project will be ever changing and will be updated with new mods, and new ve
 | **Toebean** | A wonderfully supportive modder than has shown support in this project and wants to contribute to help refine the process. | [Linktree](https://linktr.ee/tobey.me)|
 | **Lee23** | He currently maintain Nautilus, and many other developer tools that have made the process so much smoother and provided support with tricky and niche issues. | [Github](https://github.com/LeeTwentyThree)|
 <style>
+    .roadmap{
+        width: fit-content;
+        block-size: fit-content;
+
+        margin: auto;
+    }
     .roadmap-input[disabled] {
       margin-left: 1em !important;
       margin-right: 0.5em !important;
+
     }
+    h1, h2, h3, h4, h5 
+    {
+        text-align: center;
+    }
+
 </style>
