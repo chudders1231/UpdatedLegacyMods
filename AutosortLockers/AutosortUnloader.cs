@@ -10,12 +10,16 @@ using Ingredient = CraftData.Ingredient;
 using Nautilus.Assets;
 using Nautilus.Assets.PrefabTemplates;
 using TMPro;
+using Nautilus.Utility;
+using Newtonsoft.Json;
+using rail;
+using Nautilus.Extensions;
 
 namespace AutosortLockers
 {
-    public class AutosortLocker : MonoBehaviour
+    internal class AutosortUnloader : MonoBehaviour
     {
-        private static readonly Color MainColor = new Color(1f, 0.2f, 0.2f);
+        private static readonly Color MainColor = new Color(0.2f, 0.2f, 1.0f);
         private static readonly Color PulseColor = Color.white;
 
         private bool initialized;
@@ -26,20 +30,32 @@ namespace AutosortLockers
         private List<AutosortTarget> anyTargets = new List<AutosortTarget>();
 
         private int unsortableItems = 0;
+        private int unloadableItems = 0;
 
         [SerializeField]
         private Image background;
         [SerializeField]
         private Image icon;
         [SerializeField]
+        private Image unloadIcon;
+        [SerializeField]
         private TextMeshProUGUI text;
         [SerializeField]
         private TextMeshProUGUI sortingText;
         [SerializeField]
+        private TextMeshProUGUI unloadingText;
+        [SerializeField]
+        private TextMeshProUGUI unloadingTitle;
+
+        [SerializeField]
         private bool isSorting;
+        [SerializeField]
+        private bool isUnloading;
         [SerializeField]
         private bool sortedItem;
         [SerializeField]
+        private List<ItemsContainer> containerTargets;
+
 
         public bool IsSorting => isSorting;
 
@@ -49,6 +65,8 @@ namespace AutosortLockers
             container = GetComponent<StorageContainer>();
             container.hoverText = "Open autosorter";
             container.storageLabel = "Autosorter";
+
+            containerTargets = new List<ItemsContainer>();
         }
 
         private void Update()
@@ -62,8 +80,8 @@ namespace AutosortLockers
             {
                 return;
             }
-
-            UpdateText();
+            UpdateSortingText();
+            UpdateUnloadingText();
         }
 
         private IEnumerator Start()
@@ -73,26 +91,39 @@ namespace AutosortLockers
                 yield return new WaitForSeconds(Mathf.Max(0, AutosortConfig.SortInterval.Value - (unsortableItems / 60.0f)));
 
                 yield return Sort();
+
+                yield return Unload();
             }
         }
 
-        private void UpdateText()
+        private void UpdateUnloadingText()
         {
-            string output = "";
+            if(isUnloading)
+            {
+                unloadingText.text = "Unloading...";
+
+            } else if (unloadableItems > 0)
+            {
+                unloadingText.text = $"Unhandled Items: {unloadableItems}" ;
+            } else {
+                unloadingText.text = "Ready to Unload";
+            }
+        }
+        private void UpdateSortingText()
+        {
             if (isSorting)
             {
-                output = "Sorting...";
-            }
-            else if (unsortableItems > 0)
+                sortingText.text = "Sorting...";
+
+            } else if (unsortableItems > 0)
             {
-                output = "Unsorted Items: " + unsortableItems;
+                sortingText.text = "Unsorted Items: " + unsortableItems;
+
             }
             else
             {
-                output = "Ready to Sort";
+                sortingText.text = "Ready to Sort";
             }
-
-            sortingText.text = output;
         }
 
         private void Initialize()
@@ -104,6 +135,8 @@ namespace AutosortLockers
 
             background.sprite = Common.Utility.ImageUtils.TextureToSprite(Utilities.GetTexture("LockerScreen"));
             icon.sprite = Common.Utility.ImageUtils.TextureToSprite(Utilities.GetTexture("Sorter"));
+
+            unloadIcon.sprite = Common.Utility.ImageUtils.TextureToSprite(Utilities.GetTexture("Unloading"));
 
             initialized = true;
         }
@@ -161,28 +194,99 @@ namespace AutosortLockers
                 yield break;
             }
 
-            isSorting = true;
             yield return SortFilteredTargets(false);
             if (sortedItem)
             {
+                isSorting = true;
                 yield break;
             }
 
             yield return SortFilteredTargets(true);
             if (sortedItem)
             {
+                isSorting = true;
                 yield break;
             }
 
             yield return SortAnyTargets();
             if (sortedItem)
             {
+                isSorting = true;
                 yield break;
             }
 
             isSorting = false;
         }
 
+        private void AccumulateUnloadTargets()
+        {
+            unloadableItems = 0;
+            SubRoot subRoot = GetComponentInParent<SubRoot>();
+            if (subRoot == null)
+                return;
+
+            containerTargets.Clear();
+            SeamothStorageContainer[] seamothStorageContainers = subRoot.gameObject.GetComponentsInChildren<SeamothStorageContainer>(true);
+
+            Exosuit[] exosuits = subRoot.gameObject.GetComponentsInChildren<Exosuit>();
+            List<StorageContainer> prawnStorageContainer = new List<StorageContainer>();
+
+            foreach(var suit in exosuits)
+            {
+                var container = suit.GetComponentInChildren<StorageContainer>();
+                prawnStorageContainer.Add(container);
+            }
+            foreach (var storageContainer in seamothStorageContainers)
+            {
+                ItemsContainer itemContainer = storageContainer.container;
+                unloadableItems += itemContainer.count;
+                if (itemContainer.count <= 0)
+                    continue;
+
+                containerTargets.Add(itemContainer);
+            }
+            foreach (var storageContainer in prawnStorageContainer)
+            {
+                ItemsContainer itemContainer = storageContainer.container;
+                unloadableItems += itemContainer.count;
+                if (itemContainer.count <= 0)
+                    continue;
+
+                containerTargets.Add(itemContainer);
+            }
+        }
+        private IEnumerator Unload()
+        {
+            isUnloading = false;
+
+            AccumulateUnloadTargets();
+
+            if (container.container.IsFull())
+                yield break;
+
+            if (containerTargets.Count() <= 0)
+                yield break;
+
+            foreach( var containerTarget in containerTargets)
+            {
+                foreach( var item in containerTarget.ToList())
+                {
+                    isUnloading = true;
+                    if (container.container.HasRoomFor(item.techType))
+                    {
+                        container.container.AddItem(item.item);
+                        StartCoroutine(PulseUnloadIcon());
+
+                        yield break;
+                    } else
+                    {
+                        isUnloading = false;
+                        yield return null;
+                    }
+                }
+            }
+            isUnloading = false;
+        }
         private bool NoTargets()
         {
             return singleItemTargets.Count <= 0 && categoryTargets.Count <= 0 && anyTargets.Count <= 0;
@@ -265,17 +369,28 @@ namespace AutosortLockers
                 yield return null;
             }
         }
+        public IEnumerator PulseUnloadIcon()
+        {
+            float t = 0;
+            float rate = 0.5f;
+            while (t < 1.0)
+            {
+                t += Time.deltaTime * rate;
+                unloadIcon.color = Color.Lerp(PulseColor, MainColor, t);
+                yield return null;
+            }
+        }
 
-        internal class AutosortLockerBuildable
+        internal class AutosortUnloaderLockerBuildable
         {
             public static PrefabInfo Info { get; private set; }
             public static void Patch()
             {
                 Info = Utilities.CreatePrefabInfo(
-                    "Autosorter",
-                    "Autosort Locker",
-                    "Small, wall-mounted smart-locker that automatically transfers items into linked Autosort Receptacles.",
-                    Utilities.GetSprite("AutosortLocker")
+                    "AutosortUnloader",
+                    "Autosort Vehicle Unloader",
+                    "Works like an Autosort Receptacle, while also unloading items from docked vehicles!",
+                    Utilities.GetSprite("AutosortUnloader")
                     );
 
                 var customPrefab = new CustomPrefab(Info);
@@ -292,7 +407,7 @@ namespace AutosortLockers
                     var meshRenderers = obj.GetComponentsInChildren<MeshRenderer>();
                     foreach (var meshRenderer in meshRenderers)
                     {
-                        meshRenderer.material.color = new Color(1, 0, 0);
+                        meshRenderer.material.color = new Color(0.2f, 0.4f, 1.0f);
                     }
 
                     var prefabText = obj.GetComponentInChildren<TextMeshProUGUI>();
@@ -300,17 +415,23 @@ namespace AutosortLockers
                     var label = obj.FindChild("Label");
                     DestroyImmediate(label);
 
-                    var autoSorter = obj.AddComponent<AutosortLocker>();
+                    var autoSorter = obj.AddComponent<AutosortUnloader>();
 
                     var canvas = LockerPrefabShared.CreateCanvas(obj.transform);
                     triggerCull.objectToCull = canvas.gameObject;
 
                     autoSorter.background = LockerPrefabShared.CreateBackground(canvas.transform);
-                    autoSorter.icon = LockerPrefabShared.CreateIcon(autoSorter.background.transform, MainColor, 40);
-                    autoSorter.text = LockerPrefabShared.CreateText(autoSorter.background.transform, prefabText, MainColor, 0, 14, "Autosorter");
+                    autoSorter.icon = LockerPrefabShared.CreateIcon(autoSorter.background.transform, MainColor, 80); // Originally 40
+                    autoSorter.text = LockerPrefabShared.CreateText(autoSorter.background.transform, prefabText, MainColor, 44, 14, "Autosorter");
 
-                    autoSorter.sortingText = LockerPrefabShared.CreateText(autoSorter.background.transform, prefabText, MainColor, -120, 12, "Sorting...");
+                    autoSorter.sortingText = LockerPrefabShared.CreateText(autoSorter.background.transform, prefabText, MainColor, -70, 8, "Sorting...");
                     autoSorter.sortingText.alignment = TextAlignmentOptions.Top;
+
+                    autoSorter.unloadIcon = LockerPrefabShared.CreateIcon(autoSorter.background.transform, MainColor, -30); // Originally 40
+                    autoSorter.unloadingTitle = LockerPrefabShared.CreateText(autoSorter.background.transform, prefabText, MainColor, -64, 14, "Unloader");
+
+                    autoSorter.unloadingText = LockerPrefabShared.CreateText(autoSorter.background.transform, prefabText, MainColor, -180, 8, "Unloading...");
+                    autoSorter.unloadingText.alignment = TextAlignmentOptions.Top;
 
                     autoSorter.background.gameObject.SetActive(false);
                     autoSorter.icon.gameObject.SetActive(false);
@@ -329,8 +450,10 @@ namespace AutosortLockers
                     : new List<Ingredient>
                     {
                         new Ingredient(TechType.Titanium, 2),
-                        new Ingredient(TechType.ComputerChip, 1),
-                        new Ingredient(TechType.AluminumOxide, 2)
+                        new Ingredient(TechType.Kyanite, 2),
+                        new Ingredient(TechType.AdvancedWiringKit, 1),
+                        new Ingredient(TechType.PrecursorIonCrystal, 1)
+
                     }
                 };
 

@@ -48,13 +48,13 @@ namespace AutosortLockers
             // Autosorter config options
 
             AutosorterWidth = config.Bind("Autosorter Config",
-                "Storage width size",
+                "Autosorter width size",
                 5,
                 "The width of the inventory for the autosorter"
                 );
 
             AutosorterHeight = config.Bind("Autosorter Config",
-                "Storage height size",
+                "Autosorter height size",
                 6,
                 "The height of the inventory for the autosorter"
                 );
@@ -62,34 +62,35 @@ namespace AutosortLockers
             // Autosort receptacle config options
 
             ReceptacleWidth = config.Bind("Receptacle Config",
-                "Storage width size",
+                "Receptacle width size",
                 6,
                 "The width of the inventory for the autosort receptacle"
                 );
             ReceptacleHeight = config.Bind("Receptacle Config",
-                "Storage height size",
+                "Receptacle height size",
                 8,
                 "The height of the inventory for the autosort receptacle"
                 );
             // Autosort standing receptacle config options
 
             StandingReceptacleWidth = config.Bind("Standing Receptacle Config",
-                "Storage width size",
+                "Standing receptacle width size",
                 6,
                 "The width of the inventory for the standing autosort receptacle"
                 );
             StandingReceptacleHeight = config.Bind("Standing Receptacle Config",
-                "Storage height size",
+                "Standing receptacle height size",
                 8,
                 "The height of the inventory for the standing autosort receptacle"
                 );
+
+            OptionsPanelHandler.RegisterModOptions(new AutoSortModOptions());
         }
 
         public class AutoSortModOptions : ModOptions 
         {
-            AutoSortModOptions() : base("Autosort Lockers")
+            public AutoSortModOptions() : base("Autosort Lockers")
             {
-                OptionsPanelHandler.RegisterModOptions(this);
 
                 AddItem(EasyBuild.ToModToggleOption());
                 AddItem(SortInterval.ToModSliderOption( 0.1f, 5.0f, 0.1f, "{0:F1}x"));

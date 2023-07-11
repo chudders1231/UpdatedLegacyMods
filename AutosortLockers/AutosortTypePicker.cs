@@ -176,7 +176,8 @@ namespace AutosortLockers
             textPrefab.enableAutoSizing = true;
 
             var picker = LockerPrefabShared.CreateCanvas(parent).gameObject.AddComponent<AutosortTypePicker>();
-			picker.GetComponent<Canvas>().sortingLayerID = 0;
+            picker.GetComponent<Canvas>().sortingLayerID = 0;
+			picker.GetComponent<Canvas>().sortingOrder = 1;
 			picker.gameObject.SetActive(false);
 
 			var t = picker.transform;

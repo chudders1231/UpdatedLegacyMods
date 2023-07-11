@@ -42,11 +42,6 @@ namespace AutosortLockers
 			rectTransform = transform as RectTransform;
 		}
 
-		private void OnDisable()
-		{
-			colorPicker.Close();
-		}
-
 		internal void Initialize(SaveDataEntry saveData)
 		{
 			target = saveData;

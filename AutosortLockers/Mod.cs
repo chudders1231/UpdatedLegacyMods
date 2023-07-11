@@ -48,7 +48,9 @@ namespace AutosortLockers
 		public void AddBuildables()
 		{
 			AutosortLocker.AutosortLockerBuildable.Patch();
-			AutosortTarget.AutosortTargetBuildable.Patch();
+			AutosortUnloader.AutosortUnloaderLockerBuildable.Patch();
+
+            AutosortTarget.AutosortTargetBuildable.Patch();
 			AutosortTarget.AutosortStandingTargetBuildable.Patch();
 		}
 

@@ -606,8 +606,8 @@ namespace AutosortLockers
 
         internal class AutosortStandingTargetBuildable
         {
-            public static PrefabInfo Info { get; private set; }
-			public static TextMeshProUGUI textPrefab { get; private set; }
+			public static PrefabInfo Info;
+			private static TextMeshProUGUI textPrefab;
 
             public static void Patch()
             {
@@ -642,8 +642,9 @@ namespace AutosortLockers
 
                     var canvas = LockerPrefabShared.CreateCanvas(obj.transform);
 					canvas.transform.localPosition = new Vector3(0, 1.1f, 0.25f);
+					canvas.sortingOrder = 1;
 
-					autosortTarget.background = LockerPrefabShared.CreateBackground(canvas.transform);
+                    autosortTarget.background = LockerPrefabShared.CreateBackground(canvas.transform);
 					autosortTarget.icon = LockerPrefabShared.CreateIcon(autosortTarget.background.transform, autosortTarget.textPrefab.color, 70);
 					autosortTarget.text = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, -20, 12, "Any");
 
