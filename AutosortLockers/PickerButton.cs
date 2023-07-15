@@ -122,7 +122,7 @@ namespace AutosortLockers
 			button.text.color = new Color(1, 1, 1);
 			button.text.font = textPrefab.font;
 			button.text.fontSize = 8;
-            button.text.gameObject.transform.localEulerAngles = new Vector3(0.01f, 0.0f, 0.0f);
+
             button.text.alignment = TextAlignmentOptions.Midline;
 
             button.onClick += action;

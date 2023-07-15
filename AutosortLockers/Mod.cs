@@ -19,7 +19,7 @@ namespace AutosortLockers
         // Plugin Setup
         private const string myGUID = "com.chadlymasterson.autosortlockers";
         private const string pluginName = "Autosort Lockers";
-        private const string versionString = "1.0.1";
+        private const string versionString = "1.0.2";
 
 		public static List<Color> colors = new List<Color>();
 

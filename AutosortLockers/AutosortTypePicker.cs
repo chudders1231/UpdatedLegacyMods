@@ -254,14 +254,15 @@ namespace AutosortLockers
 
             for (int i = 0; i < AutosortTarget.MaxTypes; ++i)
 			{
-				var currentFilterButton = CreatePickerButton(picker.currentFilterContainer.transform, 0, 0, textPrefab, picker.OnCurrentListItemClick);
+				var currentFilterButton = CreatePickerButton(picker.currentFilterContainer.transform, 0, 0, textPrefab, picker.OnCurrentListItemClick, isList: true);
 				var layoutElement = currentFilterButton.gameObject.AddComponent<LayoutElement>();
-				layoutElement.preferredHeight = 23;
+
+                layoutElement.preferredHeight = 23;
 				layoutElement.flexibleWidth = 1;
 
 				picker.currentList[i] = currentFilterButton;
 
-				var availableFilterButton = CreatePickerButton(picker.availableFilterContainer.transform, 0, 0, textPrefab, picker.OnAvailableListItemClick);
+				var availableFilterButton = CreatePickerButton(picker.availableFilterContainer.transform, 0, 0, textPrefab, picker.OnAvailableListItemClick, isList:true);
 
                 var availableLayoutElement = availableFilterButton.gameObject.AddComponent<LayoutElement>();
                 availableLayoutElement.preferredHeight = 23;
@@ -310,12 +311,15 @@ namespace AutosortLockers
 			return closeButton;
 		}
 
-		public static PickerButton CreatePickerButton(Transform parent, int x, int y, TextMeshProUGUI textPrefab, Action<AutosorterFilter, PickerButton> action, int width = 100)
+		public static PickerButton CreatePickerButton(Transform parent, int x, int y, TextMeshProUGUI textPrefab, Action<AutosorterFilter, PickerButton> action, int width = 100, bool isList = false)
 		{
 			var button = PickerButton.Create(parent, textPrefab, action, width);
-
 			var rt = button.transform as RectTransform;
-			rt.anchoredPosition = new Vector2(x, y);
+            if (isList) 
+			{
+				rt.localEulerAngles = new Vector3(0.01f, 0, 0);
+			}
+            rt.anchoredPosition = new Vector2(x, y);
 
 			return button;
 		}
