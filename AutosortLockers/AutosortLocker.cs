@@ -273,7 +273,7 @@ namespace AutosortLockers
             {
                 Info = Utilities.CreatePrefabInfo(
                     "Autosorter",
-                    "Autosort Locker",
+                    "Autosort Distributor",
                     "Small, wall-mounted smart-locker that automatically transfers items into linked Autosort Receptacles.",
                     Utilities.GetSprite("AutosortLocker")
                     );

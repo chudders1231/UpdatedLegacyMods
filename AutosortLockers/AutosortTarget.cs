@@ -11,8 +11,6 @@ using Ingredient = CraftData.Ingredient;
 using Nautilus.Assets;
 using Nautilus.Assets.PrefabTemplates;
 using TMPro;
-using Newtonsoft.Json;
-using System;
 
 namespace AutosortLockers
 {
@@ -78,7 +76,7 @@ namespace AutosortLockers
 			return currentFilters;
 		}
 
-		public void AddFilter(AutosorterFilter filter)
+		public void AddFilter(AutosorterFilter filter, PickerButton button)
 		{
 			if (currentFilters.Count >= AutosortTarget.MaxTypes)
 			{
@@ -92,8 +90,8 @@ namespace AutosortLockers
 			{
 				return;
 			}
-
-			currentFilters.Add(filter);
+            button.gameObject.SetActive(false);
+            currentFilters.Add(filter);
 			UpdateText();
 		}
 
@@ -520,7 +518,7 @@ namespace AutosortLockers
 			{
 				Info = Utilities.CreateBuildablePrefabInfo(
 					"AutosortTarget", 
-					"Autosort Recepticle", 
+					"Autosort Receptacle", 
 					"Wall locker linked to an Autosorter that receives sorted items.", 
 					Utilities.GetSprite("AutosortTarget"));
 

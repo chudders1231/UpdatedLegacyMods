@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UWE.DebugGizmos;
 
 namespace AutosortLockers
 {
@@ -17,9 +18,9 @@ namespace AutosortLockers
 
 		private bool hover;
 		private bool tabActive = true;
-		private AutosorterFilter filter;
+		internal AutosorterFilter filter;
 
-		public Action<AutosorterFilter> onClick = delegate { };
+		public Action<AutosorterFilter,PickerButton> onClick = delegate { };
 
 		[SerializeField]
 		private Image background;
@@ -79,7 +80,7 @@ namespace AutosortLockers
 		{
 			if (eventData.button == PointerEventData.InputButton.Left)
 			{
-                onClick.Invoke(filter);
+                onClick.Invoke(filter, this);
             }
 		}
 
@@ -98,12 +99,13 @@ namespace AutosortLockers
 			tabActive = active;
 		}
 
-
-
-		public static PickerButton Create(Transform parent, TextMeshProUGUI textPrefab, Action<AutosorterFilter> action, int width = 100, int height = 18)
+		public static PickerButton Create(Transform parent, TextMeshProUGUI textPrefab, Action<AutosorterFilter,PickerButton> action, int width = 100, int height = 18)
 		{
 			var button = new GameObject("PickerButton", typeof(RectTransform)).AddComponent<PickerButton>();
 			button.transform.SetParent(parent, false);
+			var rt = button.transform as RectTransform;
+			rt.sizeDelta = new Vector2(104, 14);
+			button.gameObject.AddComponent<CanvasRenderer>();
 
 			button.background = new GameObject("Background", typeof(RectTransform)).AddComponent<Image>();
 			RectTransformExtensions.SetParams(button.background.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), button.transform);
@@ -113,14 +115,15 @@ namespace AutosortLockers
 			button.background.color = upColor;
 			button.background.type = Image.Type.Sliced;
 
-			button.text = new GameObject("Text", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
+			button.text = new GameObject("PickerText", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
 			RectTransformExtensions.SetParams(button.text.rectTransform, new Vector2(0.5f, 0.55f), new Vector2(0.5f, 0.55f), button.transform);
 			RectTransformExtensions.SetSize(button.text.rectTransform, width, height);
+
 			button.text.color = new Color(1, 1, 1);
 			button.text.font = textPrefab.font;
 			button.text.fontSize = 8;
-			button.text.alignment = TextAlignmentOptions.Midline;
-
+            button.text.gameObject.transform.localEulerAngles = new Vector3(0.01f, 0.0f, 0.0f);
+            button.text.alignment = TextAlignmentOptions.Midline;
 
             button.onClick += action;
 

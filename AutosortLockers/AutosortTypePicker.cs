@@ -41,7 +41,13 @@ namespace AutosortLockers
 		[SerializeField]
 		private PickerButton itemsTabButton;
 
-		public void Initialize(AutosortTarget locker)
+		[SerializeField]
+		private VerticalLayoutGroup currentFilterContainer;
+	    
+		[SerializeField]
+        private VerticalLayoutGroup availableFilterContainer;
+
+        public void Initialize(AutosortTarget locker)
 		{
 			this.locker = locker;
 			closeButton.target = locker;
@@ -66,9 +72,26 @@ namespace AutosortLockers
 				currentList[i].SetFilter(null);
 				i++;
 			}
-		}
 
-		private List<AutosorterFilter> GetAvailableTypes()
+        }
+
+		private void refreshHiddenFilters()
+		{
+            foreach (var availableFilter in availableList)
+            {
+                foreach (var currentFilter in currentList)
+                {
+					if (currentFilter?.filter?.GetString() == null || availableFilter?.filter?.GetString() == null) continue;
+
+                    if (currentFilter.filter.GetString() == availableFilter.filter.GetString())
+                    {
+                        availableFilter.gameObject.SetActive(false);
+                    }
+                }
+            }
+        }
+
+        private List<AutosorterFilter> GetAvailableTypes()
 		{
 			if (currentMode == Mode.Categories)
 			{
@@ -89,15 +112,16 @@ namespace AutosortLockers
 				var filter = (start + i) >= availableTypes.Count ? null : availableTypes[start + i];
 				availableList[i].SetFilter(filter);
 			}
-			pageText.text = string.Format("{0}/{1}", GetCurrentPage() + 1, GetCurrentPageCount());
+            pageText.text = string.Format("{0}/{1}", GetCurrentPage() + 1, GetCurrentPageCount());
 			prevPageButton.canChangePage = (GetCurrentPage() > 0);
 			nextPageButton.canChangePage = (GetCurrentPage() + 1) < GetCurrentPageCount();
 
 			categoriesTabButton.SetTabActive(currentMode == Mode.Categories);
 			itemsTabButton.SetTabActive(currentMode == Mode.Items);
-		}
+			refreshHiddenFilters();
+        }
 
-		public void OnCurrentListItemClick(AutosorterFilter filter)
+		public void OnCurrentListItemClick(AutosorterFilter filter, PickerButton button)
 		{
 			if (filter == null)
 			{
@@ -105,48 +129,61 @@ namespace AutosortLockers
 			}
 
 			locker.RemoveFilter(filter);
-			RefreshCurrentFilters();
+			GetPickerButtonFromFilter(filter)?.gameObject.SetActive(true);
+            RefreshCurrentFilters();
+        }
+
+		public PickerButton GetPickerButtonFromFilter(AutosorterFilter filter)
+		{
+			foreach (var target in availableList)
+			{
+				if( target.filter == filter)
+				{
+					return target;
+				}
+			}
+			return null;
 		}
 
-		public void OnAvailableListItemClick(AutosorterFilter filter)
+		public void OnAvailableListItemClick(AutosorterFilter filter, PickerButton button)
 		{
 			if (filter == null)
 			{
 				return;
 			}
 
-			locker.AddFilter(filter);
+			locker.AddFilter(filter, button);
 			RefreshCurrentFilters();
-		}
+        }
 
 		internal void ChangePage(int pageOffset)
 		{
 			var pageCount = GetCurrentPageCount();
 			SetCurrentPage(Mathf.Clamp(GetCurrentPage() + pageOffset, 0, pageCount - 1));
 			UpdateAvailableTypes();
-		}
+        }
 
-		private int GetCurrentPageCount()
+        private int GetCurrentPageCount()
 		{
 			return (int)Mathf.Ceil((float)availableTypes.Count / AutosortTarget.MaxTypes);
 		}
 
-		private void OnCategoriesButtonClick(AutosorterFilter obj)
+		private void OnCategoriesButtonClick(AutosorterFilter obj, PickerButton b)
 		{
 			if (currentMode != Mode.Categories)
 			{
 				currentMode = Mode.Categories;
 				UpdateAvailableTypes();
-			}
+            }
 		}
 
-		private void OnItemsButtonClick(AutosorterFilter obj)
+		private void OnItemsButtonClick(AutosorterFilter obj, PickerButton b)
 		{
 			if (currentMode != Mode.Items)
 			{
 				currentMode = Mode.Items;
 				UpdateAvailableTypes();
-			}
+            }
 		}
 
 		private int GetCurrentPage()
@@ -164,20 +201,19 @@ namespace AutosortLockers
 			{
 				currentPageItems = page;
 			}
-		}
-
-
+        }
 
 		public static AutosortTypePicker Create(Transform parent, TextMeshProUGUI textPrefab)
 		{
-
             textPrefab.fontSizeMin = 6;
             textPrefab.fontSizeMax = 8;
             textPrefab.enableAutoSizing = true;
 
             var picker = LockerPrefabShared.CreateCanvas(parent).gameObject.AddComponent<AutosortTypePicker>();
-            picker.GetComponent<Canvas>().sortingLayerID = 0;
-			picker.GetComponent<Canvas>().sortingOrder = 1;
+			var pickerCanvas = picker.GetComponent<Canvas>();
+
+            pickerCanvas.sortingLayerID = 0;
+            pickerCanvas.sortingOrder = 1;
 			picker.gameObject.SetActive(false);
 
 			var t = picker.transform;
@@ -196,7 +232,7 @@ namespace AutosortLockers
 			picker.underlines[0] = CreateUnderline(picker.background.transform, x);
 			picker.underlines[1] = CreateUnderline(picker.background.transform, -x);
 
-			var currentText = LockerPrefabShared.CreateText(picker.background.transform, textPrefab, Color.white, 90, 12, "Current");
+            var currentText = LockerPrefabShared.CreateText(picker.background.transform, textPrefab, Color.white, 90, 12, "Current");
 			currentText.rectTransform.anchoredPosition = new Vector2(-x, 90);
 
 			picker.categoriesTabButton = CreatePickerButton(picker.background.transform, x - 23 + 2, 90, textPrefab, picker.OnCategoriesButtonClick, 60);
@@ -213,16 +249,30 @@ namespace AutosortLockers
 
 			picker.closeButton = AddCloseButton(picker.background.transform);
 
-			for (int i = 0; i < AutosortTarget.MaxTypes; ++i)
+			picker.currentFilterContainer = CreateCurrentListLayout(picker.background.transform);
+            picker.availableFilterContainer = CreateAvailableListLayout(picker.background.transform);
+
+            for (int i = 0; i < AutosortTarget.MaxTypes; ++i)
 			{
-				picker.currentList[i] = CreatePickerButton(picker.background.transform, -x, startY - (i * spacing), textPrefab, picker.OnCurrentListItemClick);
-				picker.availableList[i] = CreatePickerButton(picker.background.transform, x, startY - (i * spacing), textPrefab, picker.OnAvailableListItemClick);
+				var currentFilterButton = CreatePickerButton(picker.currentFilterContainer.transform, 0, 0, textPrefab, picker.OnCurrentListItemClick);
+				var layoutElement = currentFilterButton.gameObject.AddComponent<LayoutElement>();
+				layoutElement.preferredHeight = 23;
+				layoutElement.flexibleWidth = 1;
+
+				picker.currentList[i] = currentFilterButton;
+
+				var availableFilterButton = CreatePickerButton(picker.availableFilterContainer.transform, 0, 0, textPrefab, picker.OnAvailableListItemClick);
+
+                var availableLayoutElement = availableFilterButton.gameObject.AddComponent<LayoutElement>();
+                availableLayoutElement.preferredHeight = 23;
+                availableLayoutElement.flexibleWidth = 1;
+
+				picker.availableList[i] = availableFilterButton;
 			}
 
-			return picker;
+            return picker;
 		}
-
-		private static PickerPageButton AddPageButton(Transform parent, AutosortTypePicker target, int pageOffset, int x, int y)
+        private static PickerPageButton AddPageButton(Transform parent, AutosortTypePicker target, int pageOffset, int x, int y)
 		{
 			var pageButton = LockerPrefabShared.CreateIcon(parent, Color.white, y);
 			pageButton.sprite = ImageUtils.TextureToSprite(Utilities.GetTexture(pageOffset < 0 ? "ArrowLeft" : "ArrowRight"));
@@ -249,7 +299,7 @@ namespace AutosortLockers
 
 		public static PickerCloseButton AddCloseButton(Transform parent)
 		{
-			var closeImage = new GameObject("CloseButton", typeof(RectTransform)).AddComponent<Image>();
+			var closeImage = new GameObject("CloseButton", typeof(RectTransform)).AddComponent<UnityEngine.UI.Image>();
 			RectTransformExtensions.SetParams(closeImage.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), parent);
 			RectTransformExtensions.SetSize(closeImage.rectTransform, 20, 20);
             closeImage.sprite = ImageUtils.TextureToSprite(Utilities.GetTexture("Close"));
@@ -260,7 +310,7 @@ namespace AutosortLockers
 			return closeButton;
 		}
 
-		public static PickerButton CreatePickerButton(Transform parent, int x, int y, TextMeshProUGUI textPrefab, Action<AutosorterFilter> action, int width = 100)
+		public static PickerButton CreatePickerButton(Transform parent, int x, int y, TextMeshProUGUI textPrefab, Action<AutosorterFilter, PickerButton> action, int width = 100)
 		{
 			var button = PickerButton.Create(parent, textPrefab, action, width);
 
@@ -269,5 +319,92 @@ namespace AutosortLockers
 
 			return button;
 		}
-	}
+		public static VerticalLayoutGroup CreateCurrentListLayout(Transform parent)
+		{
+			var element = new GameObject("CurrentFilters", typeof(RectTransform)).AddComponent<VerticalLayoutGroup>();
+            element.gameObject.AddComponent<CanvasRenderer>();
+            element.transform.SetParent(parent, false);
+
+            element.spacing = 5f;
+            element.padding.left = 2; 
+			element.padding.right = 2;
+			element.padding.top = 2;
+			element.padding.bottom = 2;
+
+            element.childForceExpandHeight = false;
+            element.childForceExpandWidth = true;
+
+            element.childScaleWidth = false;
+			element.childScaleHeight = false;
+
+			element.childControlWidth = true;
+			element.childControlHeight = false;
+
+            var rt = element.transform as RectTransform;
+
+            rt.anchorMin = new Vector2(0, 0);
+			rt.anchorMax = new Vector2(1, 1);
+			rt.pivot = new Vector2( 0.5f, 0.5f);
+
+            // Set Left
+            rt.offsetMin = new Vector2(10, rt.offsetMin.y);
+
+            // Set Right
+            rt.offsetMax = new Vector2(-118, rt.offsetMax.y);
+
+            // Set Top
+            rt.offsetMax = new Vector2(rt.offsetMax.x, -45);
+
+            // Set Bottom
+            rt.offsetMin = new Vector2(rt.offsetMin.x, 40);
+
+            rt.localScale = new Vector2(1, 1);
+
+            return element;
+		}
+
+        public static VerticalLayoutGroup CreateAvailableListLayout(Transform parent)
+        {
+            var element = new GameObject("AvailableFilters", typeof(RectTransform)).AddComponent<VerticalLayoutGroup>();
+            element.gameObject.AddComponent<CanvasRenderer>();
+            element.transform.SetParent(parent, false);
+
+            element.spacing = 5f;
+            element.padding.left = 2;
+            element.padding.right = 2;
+            element.padding.top = 2;
+            element.padding.bottom = 2;
+
+            element.childForceExpandHeight = false;
+            element.childForceExpandWidth = true;
+
+            element.childScaleWidth = false;
+            element.childScaleHeight = false;
+
+            element.childControlWidth = true;
+            element.childControlHeight = false;
+
+            var rt = element.transform as RectTransform;
+
+            rt.anchorMin = new Vector2(0, 0);
+            rt.anchorMax = new Vector2(1, 1);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+
+            // Set Left
+            rt.offsetMin = new Vector2(122, rt.offsetMin.y);
+
+            // Set Right
+            rt.offsetMax = new Vector2(-10, rt.offsetMax.y);
+
+            // Set Top
+            rt.offsetMax = new Vector2(rt.offsetMax.x, -45);
+
+            // Set Bottom
+            rt.offsetMin = new Vector2(rt.offsetMin.x, 40);
+
+            rt.localScale = new Vector2(1, 1);
+
+            return element;
+        }
+    }
 }

@@ -34,7 +34,7 @@ namespace Common.Mod
 			return canvas;
 		}
 
-		internal static Image CreateBackground(Transform parent)
+        internal static Image CreateBackground(Transform parent)
 		{
 			var background = new GameObject("Background", typeof(RectTransform)).AddComponent<Image>();
 			var rt = background.rectTransform;
