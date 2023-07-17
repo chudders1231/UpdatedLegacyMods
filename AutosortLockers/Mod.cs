@@ -9,6 +9,9 @@ using BepInEx;
 using HarmonyLib;
 using Nautilus.Handlers;
 using System.Linq;
+using System.Collections;
+using Nautilus.Utility;
+using System.Text.RegularExpressions;
 
 namespace AutosortLockers
 {
@@ -19,7 +22,7 @@ namespace AutosortLockers
         // Plugin Setup
         private const string myGUID = "com.chadlymasterson.autosortlockers";
         private const string pluginName = "Autosort Lockers";
-        private const string versionString = "1.0.2";
+        private const string versionString = "1.0.4";
 
 		public static List<Color> colors = new List<Color>();
 
@@ -27,15 +30,18 @@ namespace AutosortLockers
         private static string modDirectory;
 
 		public static readonly Harmony harmony = new Harmony(myGUID);
+        public static AssetBundle pickerMenuBundle;
 
         private void Awake()
 		{
-
 			AutosortLogger.Log("Patching started...");
 
-			modDirectory = "AutosortLockers";
+            pickerMenuBundle = AssetBundleLoadingUtils.LoadFromAssetsFolder(Assembly.GetExecutingAssembly(), "pickermenu");
+
+            modDirectory = "AutosortLockers";
 
             AutosortConfig.LoadConfig(Config);
+
             saveData = SaveDataHandler.RegisterSaveDataCache<SaveData>();
 
             RegisterColors();
@@ -43,7 +49,10 @@ namespace AutosortLockers
 			AddBuildables();
 
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
-		}
+
+            //UWE.CoroutineHost.StartCoroutine(CheckPrefabs());
+
+        }
 
 		public void AddBuildables()
 		{
@@ -75,10 +84,43 @@ namespace AutosortLockers
 			var serializedColors = JsonConvert.DeserializeObject<List<SerializableColor>>(File.ReadAllText(GetAssetPath("colors.json")));
 
 			foreach( var sColor in serializedColors )
-			{
-				colors.Add(sColor.ToColor());
-			}
-		}
+            {
+                colors.Add(sColor.ToColor());
+            }
+        }
 
-	}
+        public static IEnumerator CheckPrefabs()
+        {
+            ErrorMessage.AddMessage($"Starting to check for prefabs!");
+            var pickupableTypes = new Dictionary<string, string>();
+            var startTime = DateTime.Now;
+            var lastCalledTime = startTime;
+            foreach (TechType type in Enum.GetValues(typeof(TechType)))
+            {
+                if (type == TechType.None) continue;
+
+                var request = CraftData.GetPrefabForTechTypeAsync(type);
+                yield return request;
+                var result = request.GetResult();
+                if (!result) continue;
+                var intermediaryTime = DateTime.Now - lastCalledTime;
+                var words = Regex.Matches(type.ToString(), @"([A-Z][a-z]+)").Cast<Match>().Select(m => m.Value);
+                if (result.TryGetComponent<Pickupable>(out _)) pickupableTypes.Add(type.AsString(), string.Join(" ", words)) ;
+
+            }
+
+            var json = JsonConvert.SerializeObject(pickupableTypes, Formatting.Indented);
+            File.WriteAllText(IOUtilities.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assets","pickupableTechTypes.json"), json);
+
+            var endTime = DateTime.Now;
+            var timeDifference = endTime - startTime;
+
+            var techType = TechTypeExtensions.FromString("Titanium", out TechType o, true);
+
+
+            ErrorMessage.AddMessage($"Got all prefabs, it took :{timeDifference.TotalSeconds} seconds");
+            ErrorMessage.AddMessage($"Titanium Techtype result: {o}");
+        }
+
+    }
 }

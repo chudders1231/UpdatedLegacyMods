@@ -31,8 +31,16 @@ namespace AutosortLockers
 
 		public void Update()
 		{
-			image.color = canChangePage ? (pointerOver ? HoverColor : NormalColor) : DisabledColor;
-		}
+			if (canChangePage)
+			{
+				image.color = pointerOver ? HoverColor : NormalColor;
+				transform.localScale = pointerOver ? new Vector3(1.2f, 1.2f, 1) : new Vector3(1f, 1f, 1); 
+			} else
+			{
+				image.color = DisabledColor;
+				transform.localScale = new Vector3( 1, 1, 1);
+			}
+        }
 
 		public void OnPointerEnter(PointerEventData eventData)
 		{

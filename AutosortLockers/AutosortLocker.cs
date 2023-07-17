@@ -21,9 +21,9 @@ namespace AutosortLockers
         private bool initialized;
         private Constructable constructable;
         private StorageContainer container;
-        private List<AutosortTarget> singleItemTargets = new List<AutosortTarget>();
-        private List<AutosortTarget> categoryTargets = new List<AutosortTarget>();
-        private List<AutosortTarget> anyTargets = new List<AutosortTarget>();
+        private readonly List<AutosortTarget> singleItemTargets = new List<AutosortTarget>();
+        private readonly List<AutosortTarget> categoryTargets = new List<AutosortTarget>();
+        private readonly List<AutosortTarget> anyTargets = new List<AutosortTarget>();
 
         private int unsortableItems = 0;
 
@@ -266,7 +266,7 @@ namespace AutosortLockers
             }
         }
 
-        internal class AutosortLockerBuildable
+        internal static class AutosortLockerBuildable
         {
             public static PrefabInfo Info { get; private set; }
             public static void Patch()

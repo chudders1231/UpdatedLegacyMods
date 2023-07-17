@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.Mod;
 using Common.Utility;
+using Nautilus.Utility;
 using TMPro;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,9 +27,7 @@ namespace AutosortLockers
 		[SerializeField]
 		private PickerButton[] availableList = new PickerButton[AutosortTarget.MaxTypes];
 		[SerializeField]
-		private Image background;
-		[SerializeField]
-		private Image[] underlines = new Image[2];
+		private RawImage background;
 		[SerializeField]
 		private PickerCloseButton closeButton;
 		[SerializeField]
@@ -51,8 +51,6 @@ namespace AutosortLockers
 		{
 			this.locker = locker;
 			closeButton.target = locker;
-			background.sprite = ImageUtils.TextureToSprite(Utilities.GetTexture("Background"));
-			background.color = new Color(1, 1, 1);
 
 			RefreshCurrentFilters();
 			UpdateAvailableTypes();
@@ -205,210 +203,62 @@ namespace AutosortLockers
 
 		public static AutosortTypePicker Create(Transform parent, TextMeshProUGUI textPrefab)
 		{
-            textPrefab.fontSizeMin = 6;
-            textPrefab.fontSizeMax = 8;
-            textPrefab.enableAutoSizing = true;
+			var pickermenu = GameObject.Instantiate(Mod.pickerMenuBundle.LoadAsset<GameObject>("PickerMenu"));
+			pickermenu.transform.SetParent(parent, false);
+            pickermenu.transform.localPosition = new Vector3(0f, 0.6f, 0.25f);
+			pickermenu.transform.localEulerAngles = new Vector3( 0, 180f, 0);
+			pickermenu.GetComponentInChildren<Canvas>().sortingOrder = 2;
+            pickermenu.gameObject.SetActive(false);
 
-            var picker = LockerPrefabShared.CreateCanvas(parent).gameObject.AddComponent<AutosortTypePicker>();
-			var pickerCanvas = picker.GetComponent<Canvas>();
+            pickermenu.AddComponent<AutosortTypePicker>();
+            var pickerComp = pickermenu.GetComponent<AutosortTypePicker>();
+            var pickerCanvas = pickermenu.FindChild("Canvas").GetComponent<Canvas>();
 
-            pickerCanvas.sortingLayerID = 0;
-            pickerCanvas.sortingOrder = 1;
-			picker.gameObject.SetActive(false);
+			pickerComp.background = pickerCanvas.gameObject.FindChild("Background").GetComponent<RawImage>();
 
-			var t = picker.transform;
-			t.localEulerAngles = new Vector3(0, 180, 0);
-			t.localPosition = new Vector3(0, 0, 0.4f);
+			var currentText = pickerComp.background.gameObject.FindChild("Current");
+			currentText.GetComponent<TextMeshProUGUI>().font = FontUtils.Aller_Rg;
 
-			picker.background = LockerPrefabShared.CreateBackground(picker.transform);
-			picker.background.color = new Color(0, 0, 0, 1);
-			picker.background.type = Image.Type.Simple;
-			RectTransformExtensions.SetSize(picker.background.rectTransform, 240, 220);
+            pickerComp.categoriesTabButton = pickerComp.background.gameObject.FindChild("CategoryButton").AddComponent<PickerButton>();
+			pickerComp.categoriesTabButton.SetButton(pickerComp.OnCategoriesButtonClick);
+            pickerComp.categoriesTabButton.Override("Categories", true);
 
-			int spacing = 20;
-			int startY = 60;
-			int x = 55;
+            pickerComp.itemsTabButton = pickerComp.background.gameObject.FindChild("ItemsButton").AddComponent<PickerButton>();
+            pickerComp.itemsTabButton.SetButton(pickerComp.OnItemsButtonClick);
+            pickerComp.itemsTabButton.Override("Items", false);
 
-			picker.underlines[0] = CreateUnderline(picker.background.transform, x);
-			picker.underlines[1] = CreateUnderline(picker.background.transform, -x);
+            pickerComp.pageText = pickerComp.background.gameObject.FindChild("PageText").GetComponent<TextMeshProUGUI>();
+			pickerComp.pageText.font = FontUtils.Aller_Rg;
 
-            var currentText = LockerPrefabShared.CreateText(picker.background.transform, textPrefab, Color.white, 90, 12, "Current");
-			currentText.rectTransform.anchoredPosition = new Vector2(-x, 90);
+            pickerComp.prevPageButton = pickerComp.background.gameObject.FindChild("LeftArrowButton").AddComponent<PickerPageButton>();
+			pickerComp.prevPageButton.target = pickerComp;
+			pickerComp.prevPageButton.pageOffset = -1;
 
-			picker.categoriesTabButton = CreatePickerButton(picker.background.transform, x - 23 + 2, 90, textPrefab, picker.OnCategoriesButtonClick, 60);
-			picker.categoriesTabButton.Override("Categories", true);
+            pickerComp.nextPageButton = pickerComp.background.gameObject.FindChild("RightArrowButton").AddComponent<PickerPageButton>();
+            pickerComp.nextPageButton.target = pickerComp;
+            pickerComp.nextPageButton.pageOffset = +1;
 
-			picker.itemsTabButton = CreatePickerButton(picker.background.transform, x + 30 + 2, 90, textPrefab, picker.OnItemsButtonClick, 38);
-			picker.itemsTabButton.Override("Items", false);
+            pickerComp.closeButton = pickerComp.background.gameObject.FindChild("CloseButton").AddComponent<PickerCloseButton>();
 
-			picker.pageText = LockerPrefabShared.CreateText(picker.background.transform, textPrefab, Color.white, 90, 10, "1/X");
-			picker.pageText.rectTransform.anchoredPosition = new Vector2(x, -80);
-
-			picker.prevPageButton = AddPageButton(picker.background.transform, picker, -1, x - 20, -80);
-			picker.nextPageButton = AddPageButton(picker.background.transform, picker, +1, x + 20, -80);
-
-			picker.closeButton = AddCloseButton(picker.background.transform);
-
-			picker.currentFilterContainer = CreateCurrentListLayout(picker.background.transform);
-            picker.availableFilterContainer = CreateAvailableListLayout(picker.background.transform);
+			pickerComp.currentFilterContainer = pickerComp.background.gameObject.FindChild("CurrentFilterList").GetComponent<VerticalLayoutGroup>();
+            pickerComp.availableFilterContainer = pickerComp.background.gameObject.FindChild("AvailableFilterList").GetComponent<VerticalLayoutGroup>();
 
             for (int i = 0; i < AutosortTarget.MaxTypes; ++i)
 			{
-				var currentFilterButton = CreatePickerButton(picker.currentFilterContainer.transform, 0, 0, textPrefab, picker.OnCurrentListItemClick, isList: true);
-				var layoutElement = currentFilterButton.gameObject.AddComponent<LayoutElement>();
+				var cpb = pickerComp.currentFilterContainer.transform.GetChild(i);
+				cpb.gameObject.AddComponent<PickerButton>();
+				cpb.gameObject.GetComponent<PickerButton>().SetButton(pickerComp.OnCurrentListItemClick);
+				cpb.gameObject.GetComponentInChildren<TextMeshProUGUI>().font = FontUtils.Aller_Rg;
+				pickerComp.currentList[i] = cpb.GetComponent<PickerButton>();
 
-                layoutElement.preferredHeight = 23;
-				layoutElement.flexibleWidth = 1;
-
-				picker.currentList[i] = currentFilterButton;
-
-				var availableFilterButton = CreatePickerButton(picker.availableFilterContainer.transform, 0, 0, textPrefab, picker.OnAvailableListItemClick, isList:true);
-
-                var availableLayoutElement = availableFilterButton.gameObject.AddComponent<LayoutElement>();
-                availableLayoutElement.preferredHeight = 23;
-                availableLayoutElement.flexibleWidth = 1;
-
-				picker.availableList[i] = availableFilterButton;
+                var apb = pickerComp.availableFilterContainer.transform.GetChild(i);
+				apb.gameObject.AddComponent<PickerButton>();
+                apb.gameObject.GetComponent<PickerButton>().SetButton(pickerComp.OnAvailableListItemClick);
+                apb.gameObject.GetComponentInChildren<TextMeshProUGUI>().font = FontUtils.Aller_Rg;
+                pickerComp.availableList[i] = apb.GetComponent<PickerButton>();
 			}
 
-            return picker;
+            return pickerComp;
 		}
-        private static PickerPageButton AddPageButton(Transform parent, AutosortTypePicker target, int pageOffset, int x, int y)
-		{
-			var pageButton = LockerPrefabShared.CreateIcon(parent, Color.white, y);
-			pageButton.sprite = ImageUtils.TextureToSprite(Utilities.GetTexture(pageOffset < 0 ? "ArrowLeft" : "ArrowRight"));
-			pageButton.rectTransform.anchoredPosition = new Vector2(x, y);
-			RectTransformExtensions.SetSize(pageButton.rectTransform, 44 / 4.0f, 73 / 4.0f);
-
-			var controller = pageButton.gameObject.AddComponent<PickerPageButton>();
-			controller.target = target;
-			controller.pageOffset = pageOffset;
-
-			return controller;
-		}
-
-		private static Image CreateUnderline(Transform parent, int x)
-		{
-			var underline = new GameObject("Underline", typeof(RectTransform)).AddComponent<Image>();
-			RectTransformExtensions.SetParams(underline.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), parent);
-			RectTransformExtensions.SetSize(underline.rectTransform, 272 / 3, 78 / 3);
-			underline.sprite = ImageUtils.TextureToSprite(Utilities.GetTexture("TitleUnderline"));
-			underline.rectTransform.anchoredPosition = new Vector2(x, 90);
-
-			return underline;
-		}
-
-		public static PickerCloseButton AddCloseButton(Transform parent)
-		{
-			var closeImage = new GameObject("CloseButton", typeof(RectTransform)).AddComponent<UnityEngine.UI.Image>();
-			RectTransformExtensions.SetParams(closeImage.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), parent);
-			RectTransformExtensions.SetSize(closeImage.rectTransform, 20, 20);
-            closeImage.sprite = ImageUtils.TextureToSprite(Utilities.GetTexture("Close"));
-			closeImage.rectTransform.anchoredPosition = new Vector2(0, -90);
-
-			var closeButton = closeImage.gameObject.AddComponent<PickerCloseButton>();
-
-			return closeButton;
-		}
-
-		public static PickerButton CreatePickerButton(Transform parent, int x, int y, TextMeshProUGUI textPrefab, Action<AutosorterFilter, PickerButton> action, int width = 100, bool isList = false)
-		{
-			var button = PickerButton.Create(parent, textPrefab, action, width);
-			var rt = button.transform as RectTransform;
-            if (isList) 
-			{
-				rt.localEulerAngles = new Vector3(0.01f, 0, 0);
-			}
-            rt.anchoredPosition = new Vector2(x, y);
-
-			return button;
-		}
-		public static VerticalLayoutGroup CreateCurrentListLayout(Transform parent)
-		{
-			var element = new GameObject("CurrentFilters", typeof(RectTransform)).AddComponent<VerticalLayoutGroup>();
-            element.gameObject.AddComponent<CanvasRenderer>();
-            element.transform.SetParent(parent, false);
-
-            element.spacing = 5f;
-            element.padding.left = 2; 
-			element.padding.right = 2;
-			element.padding.top = 2;
-			element.padding.bottom = 2;
-
-            element.childForceExpandHeight = false;
-            element.childForceExpandWidth = true;
-
-            element.childScaleWidth = false;
-			element.childScaleHeight = false;
-
-			element.childControlWidth = true;
-			element.childControlHeight = false;
-
-            var rt = element.transform as RectTransform;
-
-            rt.anchorMin = new Vector2(0, 0);
-			rt.anchorMax = new Vector2(1, 1);
-			rt.pivot = new Vector2( 0.5f, 0.5f);
-
-            // Set Left
-            rt.offsetMin = new Vector2(10, rt.offsetMin.y);
-
-            // Set Right
-            rt.offsetMax = new Vector2(-118, rt.offsetMax.y);
-
-            // Set Top
-            rt.offsetMax = new Vector2(rt.offsetMax.x, -45);
-
-            // Set Bottom
-            rt.offsetMin = new Vector2(rt.offsetMin.x, 40);
-
-            rt.localScale = new Vector2(1, 1);
-
-            return element;
-		}
-
-        public static VerticalLayoutGroup CreateAvailableListLayout(Transform parent)
-        {
-            var element = new GameObject("AvailableFilters", typeof(RectTransform)).AddComponent<VerticalLayoutGroup>();
-            element.gameObject.AddComponent<CanvasRenderer>();
-            element.transform.SetParent(parent, false);
-
-            element.spacing = 5f;
-            element.padding.left = 2;
-            element.padding.right = 2;
-            element.padding.top = 2;
-            element.padding.bottom = 2;
-
-            element.childForceExpandHeight = false;
-            element.childForceExpandWidth = true;
-
-            element.childScaleWidth = false;
-            element.childScaleHeight = false;
-
-            element.childControlWidth = true;
-            element.childControlHeight = false;
-
-            var rt = element.transform as RectTransform;
-
-            rt.anchorMin = new Vector2(0, 0);
-            rt.anchorMax = new Vector2(1, 1);
-            rt.pivot = new Vector2(0.5f, 0.5f);
-
-            // Set Left
-            rt.offsetMin = new Vector2(122, rt.offsetMin.y);
-
-            // Set Right
-            rt.offsetMax = new Vector2(-10, rt.offsetMax.y);
-
-            // Set Top
-            rt.offsetMax = new Vector2(rt.offsetMax.x, -45);
-
-            // Set Bottom
-            rt.offsetMin = new Vector2(rt.offsetMin.x, 40);
-
-            rt.localScale = new Vector2(1, 1);
-
-            return element;
-        }
     }
 }

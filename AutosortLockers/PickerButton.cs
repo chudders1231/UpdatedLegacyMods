@@ -1,19 +1,19 @@
-﻿using Common.Utility;
+﻿using Common.Mod;
+using Nautilus.Utility;
 using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static UWE.DebugGizmos;
 
 namespace AutosortLockers
 {
 	public class PickerButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 	{
-		private static readonly Color inactiveColor = new Color(0.7f, 0.7f, 0.7f, 0.5f);
-		private static readonly Color inactiveHoverColor = new Color(0.7f, 0.7f, 0.7f, 1f);
-		private static readonly Color upColor = new Color(0.9f, 0.9f, 0.9f, 1f);
-		private static readonly Color hoverColor = new Color(1, 1, 1);
+		private static readonly Color inactiveColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+		private static readonly Color inactiveHoverColor = new Color(1f, 1f, 1f, 1f);
+		private static readonly Color upColor = new Color(0.85f, 0.85f, 0.85f, 1f);
+		private static readonly Color hoverColor = new Color(1f, 1f, 1f, 1f);
 		private const int Slice = 70;
 
 		private bool hover;
@@ -23,7 +23,7 @@ namespace AutosortLockers
 		public Action<AutosorterFilter,PickerButton> onClick = delegate { };
 
 		[SerializeField]
-		private Image background;
+		private RawImage background;
 		[SerializeField]
 		private TextMeshProUGUI text;
 
@@ -56,8 +56,8 @@ namespace AutosortLockers
 		{
 			if (background != null)
 			{
-				var spriteName = category ? "MainMenuPressedSprite" : "MainMenuStandardSprite";
-				background.sprite = ImageUtils.Load9SliceSprite(Mod.GetAssetPath(spriteName), new RectOffset(Slice, Slice, Slice, Slice));
+				var spriteName = category ? "MainMenuButton" : "MainMenuButtonStandard";
+				background.texture = Utilities.GetTexture(Mod.GetAssetPath(spriteName));
 			}
 		}
 
@@ -68,11 +68,13 @@ namespace AutosortLockers
 				if (tabActive)
 				{
 					background.color = hover ? hoverColor : upColor;
+					background.transform.localScale = hover ? new Vector3(1.05f, 1.05f, 1f) : new Vector3(1.0f, 1.0f, 1.0f);
 				}
 				else
 				{
 					background.color = hover ? inactiveHoverColor : inactiveColor;
-				}
+                    background.transform.localScale = hover ? new Vector3(1.05f, 1.05f, 1f) : new Vector3(1.0f, 1.0f, 1.0f);
+                }
 			}
 		}
 
@@ -81,6 +83,7 @@ namespace AutosortLockers
 			if (eventData.button == PointerEventData.InputButton.Left)
 			{
                 onClick.Invoke(filter, this);
+				hover = false;
             }
 		}
 
@@ -99,35 +102,14 @@ namespace AutosortLockers
 			tabActive = active;
 		}
 
-		public static PickerButton Create(Transform parent, TextMeshProUGUI textPrefab, Action<AutosorterFilter,PickerButton> action, int width = 100, int height = 18)
+		public void SetButton(Action<AutosorterFilter,PickerButton> action)
 		{
-			var button = new GameObject("PickerButton", typeof(RectTransform)).AddComponent<PickerButton>();
-			button.transform.SetParent(parent, false);
-			var rt = button.transform as RectTransform;
-			rt.sizeDelta = new Vector2(104, 14);
-			button.gameObject.AddComponent<CanvasRenderer>();
+			text = GetComponentInChildren<TextMeshProUGUI>();
+			text.font = FontUtils.Aller_Rg;
 
-			button.background = new GameObject("Background", typeof(RectTransform)).AddComponent<Image>();
-			RectTransformExtensions.SetParams(button.background.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), button.transform);
-			RectTransformExtensions.SetSize(button.background.rectTransform, width * 10, height * 10);
-			button.background.rectTransform.localScale = new Vector3(0.1f, 0.1f, 1);
-			button.background.sprite = ImageUtils.Load9SliceSprite(Mod.GetAssetPath("MainMenuStandardSprite"), new RectOffset(Slice, Slice, Slice, Slice));
-			button.background.color = upColor;
-			button.background.type = Image.Type.Sliced;
-
-			button.text = new GameObject("PickerText", typeof(RectTransform)).AddComponent<TextMeshProUGUI>();
-			RectTransformExtensions.SetParams(button.text.rectTransform, new Vector2(0.5f, 0.55f), new Vector2(0.5f, 0.55f), button.transform);
-			RectTransformExtensions.SetSize(button.text.rectTransform, width, height);
-
-			button.text.color = new Color(1, 1, 1);
-			button.text.font = textPrefab.font;
-			button.text.fontSize = 8;
-
-            button.text.alignment = TextAlignmentOptions.Midline;
-
-            button.onClick += action;
-
-			return button;
+            background = GetComponent<RawImage>();
+			background.texture = Utilities.GetTexture(Mod.GetAssetPath("MainMenuButton"));
+            onClick += action;
 		}
 	}
 }

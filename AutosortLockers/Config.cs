@@ -1,8 +1,6 @@
-﻿using BepInEx;
-using Nautilus.Options;
+﻿using Nautilus.Options;
 using BepInEx.Configuration;
 using Nautilus.Handlers;
-using System.Runtime.CompilerServices;
 
 namespace AutosortLockers
 {
@@ -21,7 +19,6 @@ namespace AutosortLockers
 
         public static ConfigEntry<int> StandingReceptacleWidth;
         public static ConfigEntry<int> StandingReceptacleHeight;
-
 
         public static void LoadConfig(ConfigFile config)
         {
@@ -106,6 +103,8 @@ namespace AutosortLockers
                 AddItem(StandingReceptacleHeight.ToModSliderOption(1, 10, 1));
             }
         }
+        
+
     }
 
 }

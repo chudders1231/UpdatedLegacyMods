@@ -27,6 +27,8 @@ namespace AutosortLockers
 		private Coroutine plusCoroutine;
         private SaveDataEntry saveData;
 
+        [SerializeField]
+        private bool isStandingLocker = false;
 		[SerializeField]
 		private TextMeshProUGUI textPrefab; // Problem child needs to be created before anything else is called.
 		[SerializeField]
@@ -69,7 +71,12 @@ namespace AutosortLockers
 		public void SetPicker(AutosortTypePicker picker)
 		{
 			this.picker = picker;
-		}
+
+            if (!isStandingLocker)
+            {
+                picker.transform.localPosition = new Vector3(0.0f, -0.4f, 0.4f);
+            }
+        }
 
 		public List<AutosorterFilter> GetCurrentFilters()
 		{
@@ -97,6 +104,7 @@ namespace AutosortLockers
 
 		private bool ContainsFilter(AutosorterFilter filter)
 		{
+
 			foreach (var f in currentFilters)
 			{
 				if (f.IsSame(filter))
@@ -464,9 +472,6 @@ namespace AutosortLockers
 		{
 			SetPicker(AutosortTypePicker.Create(transform, textPrefab));
 
-
-            picker.transform.localPosition = background.gameObject.transform.parent.localPosition + new Vector3(0, 0, 0.04f);
-
             picker.Initialize(this);
 			picker.gameObject.SetActive(false);
 		}
@@ -543,11 +548,13 @@ namespace AutosortLockers
 
 					var canvas = LockerPrefabShared.CreateCanvas(obj.transform);
 					var autosortTarget = obj.AddComponent<AutosortTarget>();
-					autosortTarget.background = LockerPrefabShared.CreateBackground(canvas.transform);
+                    autosortTarget.isStandingLocker = false;
+                    autosortTarget.background = LockerPrefabShared.CreateBackground(canvas.transform);
 
 					TriggerCull.objectToCull = canvas.gameObject;
 
 					var tPrefab = obj.GetComponentInChildren<TextMeshProUGUI>();
+
 
                     tPrefab.transform.parent = canvas.transform;
 					tPrefab.gameObject.SetActive(false);
@@ -635,6 +642,7 @@ namespace AutosortLockers
 					}
 
 					var autosortTarget = obj.AddComponent<AutosortTarget>();
+					autosortTarget.isStandingLocker = true;
 
 					autosortTarget.textPrefab = Instantiate(textPrefab, obj.transform);
 

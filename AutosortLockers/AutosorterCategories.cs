@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Nautilus.Extensions;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Text;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -35,43 +35,290 @@ namespace AutosortLockers
 		AlterraStuff,
 	}
 
-	public static class AutosorterCategoryData
+	public class AutosorterCategoryData
 	{
-		public static Dictionary<string, List<TechType>> defaultCategories = new Dictionary<string, List<TechType>>() 
+
+		public static readonly TechType[] NewFish =
 		{
-			{"Fish", Fish},
-            {"Alterra Artifacts", AlterraArtifacts},
-            {"Mysterious Tablets", MysteriousTablets},
-            {"CreatureEggs", CreatureEggs},
-            {"Food", Food},
-            {"Water", Water},
-            {"Scanner Room Upgrades", ScannerRoomUpgrades},
-            {"Cyclops Upgrades", CyclopsUpgrades},
-            {"Prawn Suit Upgrades", PrawnSuitUpgrades},
-            {"Seamoth Upgrades", SeamothUpgrades},
-            {"Equipment", Equipment},
-            {"Tools", Tools},
-            {"Torpedos", Torpedoes},
+            TechType.Bladderfish,
+            TechType.Boomerang,
+            TechType.LavaBoomerang,
+            TechType.Eyeye,
+            TechType.LavaEyeye,
+            TechType.GarryFish,
+            TechType.HoleFish,
+            TechType.Hoopfish,
+            TechType.Spinefish,
+            TechType.Hoverfish,
+            TechType.Oculus,
+            TechType.Peeper,
+            TechType.Reginald,
+            TechType.Spadefish,
+			TechType.Floater,
+        };
+		public static readonly TechType[] NewMetals =
+		{
+			TechType.ScrapMetal,
+			TechType.Lead,
+			TechType.Titanium,
+			TechType.Gold,
+			TechType.Silver,
+			TechType.TitaniumIngot,
+			TechType.PlasteelIngot,
+			TechType.Magnetite,
+			TechType.Nickel,
+		};
+		public static readonly TechType[] NewNaturalMaterials =
+		{
+			TechType.Quartz,
+			TechType.Salt,
+			TechType.AluminumOxide,
+			TechType.Sulphur,
+			TechType.CrashPowder,
+		};
+		public static readonly TechType[] NewSyntheticMaterials =
+		{
+			TechType.FiberMesh,
+			TechType.Glass,
+			TechType.Silicone,
+			TechType.Lithium,
+			TechType.EnameledGlass,
+			TechType.AramidFibers,
+		};
+		public static readonly TechType[] NewChemicals =
+		{
+			TechType.Bleach,
+			TechType.HydrochloricAcid,
+			TechType.Polyaniline,
+			TechType.Benzene,
+			TechType.Lubricant,
+			TechType.HatchingEnzymes,
+		};
+		public static readonly TechType[] NewElectronics =
+		{
+			TechType.CopperWire,
+			TechType.WiringKit,
+			TechType.AdvancedWiringKit,
+			TechType.ComputerChip,
+			TechType.ReactorRod,
+			TechType.DepletedReactorRod,
+			TechType.PrecursorIonCrystal,
+		};
+		public static readonly TechType[] NewBatteries =
+		{
+			TechType.PowerCell,
+			TechType.Battery,
+			TechType.LithiumIonBattery,
+		};
+		public static readonly TechType[] NewCrystalMaterials =
+		{
+			TechType.Diamond,
+			TechType.UraniniteCrystal,
+			TechType.Kyanite,
+		};
+		public static readonly TechType[] NewPlantsAndSeeds =
+		{
+			TechType.Aerogel,
+            TechType.AcidMushroomSpore,
+            TechType.BluePalmSeed,
+            TechType.BulboTreePiece,
+            TechType.CreepvinePiece,
+            TechType.CreepvineSeedCluster,
+            TechType.EyesPlantSeed,
+            TechType.FernPalmSeed,
+            TechType.GabeSFeatherSeed,
+            TechType.HangingFruit,
+            TechType.JellyPlantSeed,
+            TechType.KooshChunk,
+            TechType.Melon,
+            TechType.MelonSeed,
+            TechType.MembrainTreeSeed,
+            TechType.OrangeMushroomSpore,
+            TechType.OrangePetalsPlantSeed,
+            TechType.PinkFlowerSeed,
+            TechType.PinkMushroomSpore,
+            TechType.PurpleBrainCoralPiece,
+            TechType.PurpleBranchesSeed,
+            TechType.PurpleFanSeed,
+            TechType.PurpleRattleSpore,
+            TechType.PurpleStalkSeed,
+            TechType.PurpleTentacleSeed,
+            TechType.PurpleVasePlantSeed,
+            TechType.PurpleVegetable,
+            TechType.RedBasketPlantSeed,
+            TechType.RedBushSeed,
+            TechType.RedConePlantSeed,
+            TechType.RedGreenTentacleSeed,
+            TechType.RedRollPlantSeed,
+            TechType.SeaCrownSeed,
+            TechType.ShellGrassSeed,
+            TechType.SmallFanSeed,
+            TechType.SmallMelon,
+            TechType.SnakeMushroomSpore,
+            TechType.SpikePlantSeed,
+            TechType.SpottedLeavesPlantSeed,
+            TechType.WhiteMushroomSpore,
         };
 
-		public static List<TechType> Fish = new List<TechType> {
-			TechType.Bladderfish,
-			TechType.Boomerang,
-			TechType.LavaBoomerang,
-			TechType.Eyeye,
-			TechType.LavaEyeye,
-			TechType.GarryFish,
-			TechType.HoleFish,
-			TechType.Hoopfish,
-			TechType.Spinefish,
-			TechType.Hoverfish,
-			TechType.Oculus,
-			TechType.Peeper,
-			TechType.Reginald,
-			TechType.Spadefish,
+		public static readonly TechType[] NewEquipment =
+		{
+			TechType.Fins,
+			TechType.SwimChargeFins,
+			TechType.UltraGlideFins,
+			TechType.Tank,
+			TechType.DoubleTank,
+			TechType.HighCapacityTank,
+			TechType.PlasteelTank,
+			TechType.Compass,
+			TechType.Rebreather,
+			TechType.RadiationGloves,
+			TechType.RadiationSuit,
+			TechType.RadiationHelmet,
+			TechType.MapRoomHUDChip,
+			TechType.ReinforcedGloves,
+			TechType.ReinforcedDiveSuit,
+			TechType.WaterFiltrationSuit,
 		};
+		public static readonly TechType[] NewTools =
+		{
+			TechType.Knife,
+			TechType.HeatBlade,
+			TechType.Flashlight,
+			TechType.Builder,
+			TechType.AirBladder,
+			TechType.DiveReel,
+			TechType.Scanner,
+			TechType.FireExtinguisher,
+			TechType.Welder,
+			TechType.Seaglide,
+			TechType.Flare,
+			TechType.StasisRifle,
+			TechType.PropulsionCannon,
+			TechType.RepulsionCannon,
+			TechType.Gravsphere,
+			TechType.LaserCutter,
+		};
+		public static readonly TechType[] NewDeployables =
+		{
+			TechType.Beacon,
+			TechType.CyclopsDecoy,
+			TechType.Pipe,
+			TechType.PipeSurfaceFloater,
+			TechType.Constructor,
+			TechType.SmallStorage,
+			TechType.LEDLight,
+			TechType.DiamondBlade,
+		};
+		public static readonly TechType[] NewCreatureEggs =
+		{
+			TechType.StalkerEgg,
+			TechType.ReefbackEgg,
+			TechType.SpadefishEgg,
+			TechType.RabbitrayEgg,
+			TechType.MesmerEgg,
+			TechType.JumperEgg,
+			TechType.SandsharkEgg,
+			TechType.JellyrayEgg,
+			TechType.BonesharkEgg,
+			TechType.CrabsnakeEgg,
+			TechType.ShockerEgg,
+			TechType.GasopodEgg,
+			TechType.CrashEgg,
+			TechType.CrabsquidEgg,
+			TechType.CutefishEgg,
+			TechType.LavaLizardEgg,
+		};
+        
+		public static readonly TechType[] NewAlterraArtifacts = {
+            TechType.LabContainer,
+            TechType.LabContainer2,
+            TechType.LabContainer3,
+            TechType.ArcadeGorgetoy,
+            TechType.Cap1,
+            TechType.Cap2,
+            TechType.LabEquipment1,
+            TechType.LabEquipment2,
+            TechType.LabEquipment3,
+            TechType.LEDLightFragment,
+            TechType.StarshipSouvenir,
+            TechType.Poster,
+            TechType.PosterAurora,
+            TechType.PosterExoSuit1,
+            TechType.PosterExoSuit2,
+            TechType.PosterKitty,
+			TechType.LuggageBag,
+        };
 
-		public static List<TechType> AlterraArtifacts = new List<TechType> {
+        public static readonly TechType[] NewCyclopsUpgrades =
+        {
+            TechType.CyclopsDecoyModule,
+            TechType.CyclopsFireSuppressionModule,
+            TechType.CyclopsHullModule1,
+            TechType.CyclopsHullModule2,
+            TechType.CyclopsHullModule3,
+            TechType.CyclopsSeamothRepairModule,
+            TechType.CyclopsShieldModule,
+            TechType.CyclopsSonarModule,
+            TechType.CyclopsThermalReactorModule,
+        };
+
+        public static readonly TechType[] NewSeamothUpgrades =  {
+            TechType.SeamothElectricalDefense,
+            TechType.SeamothReinforcementModule,
+            TechType.SeamothSolarCharge,
+            TechType.SeamothSonarModule,
+            TechType.SeamothTorpedoModule,
+        };
+
+        public static readonly TechType[] NewGeneralUpgrades = {
+            TechType.HullReinforcementModule,
+            TechType.PowerUpgradeModule,
+            TechType.VehicleArmorPlating,
+            TechType.VehicleHullModule1,
+            TechType.VehicleHullModule2,
+            TechType.VehicleHullModule3,
+            TechType.VehiclePowerUpgradeModule,
+            TechType.VehicleStorageModule,
+        };
+        public static readonly TechType[] NewTorpedoes = {
+            TechType.GasTorpedo,
+            TechType.WhirlpoolTorpedo
+        };
+
+        public static readonly TechType[] NewPrawnSuitUpgrades = {
+            TechType.ExoHullModule1,
+            TechType.ExoHullModule2,
+            TechType.ExosuitDrillArmModule,
+            TechType.ExosuitGrapplingArmModule,
+            TechType.ExosuitJetUpgradeModule,
+            TechType.ExosuitPropulsionArmModule,
+            TechType.ExosuitThermalReactorModule,
+            TechType.ExosuitTorpedoArmModule,
+        };
+        public static readonly TechType[] NewScannerRoomUpgrades = {
+            TechType.MapRoomUpgradeScanRange,
+            TechType.MapRoomUpgradeScanSpeed,
+            TechType.MapRoomCamera,
+        };
+
+        public static readonly TechType[] Fish = {
+            TechType.Bladderfish,
+            TechType.Boomerang,
+            TechType.LavaBoomerang,
+            TechType.Eyeye,
+            TechType.LavaEyeye,
+            TechType.GarryFish,
+            TechType.HoleFish,
+            TechType.Hoopfish,
+            TechType.Spinefish,
+            TechType.Hoverfish,
+            TechType.Oculus,
+            TechType.Peeper,
+            TechType.Reginald,
+            TechType.Spadefish,
+        };
+
+        public static readonly TechType[] AlterraArtifacts = {
 			TechType.LabContainer,
 			TechType.LabContainer2,
 			TechType.LabContainer3,
@@ -90,13 +337,13 @@ namespace AutosortLockers
 			TechType.PosterKitty,
 		};
 
-		public static List<TechType> MysteriousTablets = new List<TechType> {
+        public static readonly TechType[] MysteriousTablets = {
 			TechType.PrecursorKey_Blue,
 			TechType.PrecursorKey_Orange,
 			TechType.PrecursorKey_Purple,
 		};
 
-		public static List<TechType> CreatureEggs = new List<TechType> {
+        public static readonly TechType[] CreatureEggs = {
 			TechType.BonesharkEgg,
 			TechType.CrabsnakeEgg,
 			TechType.CrabsquidEgg,
@@ -144,7 +391,7 @@ namespace AutosortLockers
 			TechType.SpadefishEggUndiscovered
 		};
 
-		public static List<TechType> Food = new List<TechType> {
+        public static readonly TechType[] Food = {
 			TechType.CookedBladderfish,
 			TechType.CookedBoomerang,
 			TechType.CookedEyeye,
@@ -183,7 +430,7 @@ namespace AutosortLockers
 			TechType.PurpleVegetable,
 		};
 
-		public static List<TechType> Water = new List<TechType> {
+		public static readonly TechType[] Water = {
 			TechType.BigFilteredWater,
 			TechType.Coffee,
 			TechType.DisinfectedWater,
@@ -191,13 +438,13 @@ namespace AutosortLockers
 			TechType.WaterFiltrationSuit,
 		};
 
-		public static List<TechType> ScannerRoomUpgrades = new List<TechType> {
+		public static readonly TechType[] ScannerRoomUpgrades = {
 			TechType.MapRoomUpgradeScanRange,
 			TechType.MapRoomUpgradeScanSpeed,
 			TechType.MapRoomCamera,
 		};
 
-		public static List<TechType> CyclopsUpgrades = new List<TechType> {
+		public static readonly TechType[] CyclopsUpgrades = {
 			TechType.CyclopsDecoyModule,
 			TechType.CyclopsFireSuppressionModule,
 			TechType.CyclopsHullModule1,
@@ -209,7 +456,7 @@ namespace AutosortLockers
 			TechType.CyclopsThermalReactorModule,
 		};
 
-		public static List<TechType> PrawnSuitUpgrades = new List<TechType> {
+		public static readonly TechType[] PrawnSuitUpgrades = {
 			TechType.ExoHullModule1,
 			TechType.ExoHullModule2,
 			TechType.ExosuitDrillArmModule,
@@ -220,7 +467,7 @@ namespace AutosortLockers
 			TechType.ExosuitTorpedoArmModule,
 		};
 
-		public static List<TechType> SeamothUpgrades = new List<TechType> {
+		public static readonly TechType[] SeamothUpgrades =  {
 			TechType.SeamothElectricalDefense,
 			TechType.SeamothReinforcementModule,
 			TechType.SeamothSolarCharge,
@@ -228,7 +475,7 @@ namespace AutosortLockers
 			TechType.SeamothTorpedoModule,
 		};
 
-		public static List<TechType> GeneralUpgrades = new List<TechType> {
+		public static readonly TechType[] GeneralUpgrades = {
 			TechType.HullReinforcementModule,
 			TechType.PowerUpgradeModule,
 			TechType.VehicleArmorPlating,
@@ -239,7 +486,7 @@ namespace AutosortLockers
 			TechType.VehicleStorageModule,
 		};
 
-		public static List<TechType> Equipment = new List<TechType> {
+		public static readonly TechType[] Equipment = {
 			TechType.MapRoomHUDChip,
 			TechType.Rebreather,
 			TechType.Compass,
@@ -257,7 +504,7 @@ namespace AutosortLockers
 			TechType.UltraGlideFins,
 		};
 
-		public static List<TechType> Tools = new List<TechType> {
+		public static readonly TechType[] Tools = {
 			TechType.AirBladder,
 			TechType.Beacon,
 			TechType.Builder,
@@ -285,12 +532,12 @@ namespace AutosortLockers
 			TechType.LuggageBag,
 		};
 
-		public static List<TechType> Torpedoes = new List<TechType> {
+		public static readonly TechType[] Torpedoes = {
 			TechType.GasTorpedo,
 			TechType.WhirlpoolTorpedo
 		};
 
-		public static List<TechType> PlantsAndSeeds = new List<TechType> {
+		public static readonly TechType[] PlantsAndSeeds = {
 			TechType.AcidMushroomSpore,
 			TechType.BluePalmSeed,
 			TechType.BulboTreePiece,
@@ -332,7 +579,7 @@ namespace AutosortLockers
 			TechType.WhiteMushroomSpore,
 		};
 
-		public static List<TechType> Metals = new List<TechType> {
+		public static readonly TechType[] Metals =  {
 			TechType.Copper,
 			TechType.Gold,
 			TechType.Lead,
@@ -346,7 +593,7 @@ namespace AutosortLockers
 			TechType.TitaniumIngot,
 		};
 
-		public static List<TechType> NaturalMaterials = new List<TechType> {
+		public static readonly TechType[] NaturalMaterials = {
 			TechType.GasPod,
 			TechType.CoralChunk,
 			TechType.WhiteMushroom,
@@ -360,7 +607,7 @@ namespace AutosortLockers
 			TechType.JellyPlant,
 		};
 
-		public static List<TechType> Electronics = new List<TechType> {
+		public static readonly TechType[] Electronics = {
 			TechType.AdvancedWiringKit,
 			TechType.ComputerChip,
 			TechType.CopperWire,
@@ -369,7 +616,7 @@ namespace AutosortLockers
 			TechType.WiringKit,
 		};
 
-		public static List<TechType> SyntheticMaterials = new List<TechType> {
+		public static readonly TechType[] SyntheticMaterials = {
 			TechType.Aerogel,
 			TechType.AramidFibers,
 			TechType.Benzene,
@@ -385,7 +632,7 @@ namespace AutosortLockers
 			TechType.Silicone,
 		};
 
-		public static List<TechType> CrystalMaterials = new List<TechType> {
+		public static readonly TechType[] CrystalMaterials = {
 			TechType.AluminumOxide,
 			TechType.Diamond,
 			TechType.Kyanite,
@@ -394,14 +641,14 @@ namespace AutosortLockers
 			TechType.UraniniteCrystal,
 		};
 
-		public static List<TechType> Batteries = new List<TechType> {
+		public static readonly TechType[] Batteries = {
 			TechType.Battery,
 			TechType.PowerCell,
 			TechType.PrecursorIonBattery,
 			TechType.PrecursorIonPowerCell,
 		};
 
-		public static List<TechType> IndividualItems = new List<TechType> {
+		public static readonly TechType[] IndividualItems =  {
 			TechType.GasPod,
 			TechType.CoralChunk,
 			TechType.WhiteMushroom,
@@ -455,7 +702,24 @@ namespace AutosortLockers
 			TechType.PrecursorIonBattery,
 			TechType.PrecursorIonPowerCell,
 		};
-	}
+
+        protected static readonly Dictionary<string, TechType[]> defaultCategories = new()
+        {
+            {"Fish", Fish},
+            {"Alterra Artifacts", AlterraArtifacts},
+            {"Mysterious Tablets", MysteriousTablets},
+            {"CreatureEggs", CreatureEggs},
+            {"Food", Food},
+            {"Water", Water},
+            {"Scanner Room Upgrades", ScannerRoomUpgrades},
+            {"Cyclops Upgrades", CyclopsUpgrades},
+            {"Prawn Suit Upgrades", PrawnSuitUpgrades},
+            {"Seamoth Upgrades", SeamothUpgrades},
+            {"Equipment", Equipment},
+            {"Tools", Tools},
+            {"Torpedos", Torpedoes},
+        };
+    }
 
 	[Serializable]
 	public class AutosorterFilter
@@ -492,6 +756,7 @@ namespace AutosortLockers
 	[Serializable]
 	public static class AutosorterList
 	{
+
 		public static List<AutosorterFilter> Filters;
 
 		public static List<AutosorterFilter> GetFilters()
@@ -505,15 +770,14 @@ namespace AutosortLockers
 
 		public static List<int> GetOldFilter(string oldCategory, out bool success, out string newCategory)
 		{
-			var category = AutoSorterCategory.None;
-			if (!Int32.TryParse(oldCategory, out int oldCategoryInt))
+            if (!Int32.TryParse(oldCategory, out int oldCategoryInt))
 			{
 				newCategory = "";
 				success = false;
 				return new List<int>();
 			}
-			category = (AutoSorterCategory)oldCategoryInt;
-			newCategory = category.ToString();
+            AutoSorterCategory category = (AutoSorterCategory)oldCategoryInt;
+            newCategory = category.ToString();
 
 			success = true;
 			switch (category)
@@ -580,8 +844,8 @@ namespace AutosortLockers
 			var sorted = file.Where(f => !f.IsCategory()).ToList();
 			sorted.Sort((x, y) =>
 			{
-				string xName = Language.main.Get((TechType)x.Types.First());
-				string yName = Language.main.Get((TechType)y.Types.First());
+				string xName = Language.main.Get((TechType)x.Types[0]);
+				string yName = Language.main.Get((TechType)y.Types[0]);
 				return string.Compare(xName.ToLowerInvariant(), yName.ToLowerInvariant(), StringComparison.Ordinal);
 			});
 			foreach (var filter in sorted)
@@ -590,20 +854,20 @@ namespace AutosortLockers
 			}
 		}
 
-		private static void AddEntry(string category, List<int> types)
-		{
-			Filters.Add(new AutosorterFilter {
-				Category = category,
-				Types = types
-			});
-		}
+		//private static void AddEntry(string category, List<int> types)
+		//{
+		//	Filters.Add(new AutosorterFilter {
+		//		Category = category,
+		//		Types = types
+		//	});
+		//}
 
-		private static void AddEntry(int type)
-		{
-			Filters.Add(new AutosorterFilter {
-				Category = "",
-				Types = new List<int> { type }
-			});
-		}
+		//private static void AddEntry(int type)
+		//{
+		//	Filters.Add(new AutosorterFilter {
+		//		Category = "",
+		//		Types = new List<int> { type }
+		//	});
+		//}
 	}
 }
