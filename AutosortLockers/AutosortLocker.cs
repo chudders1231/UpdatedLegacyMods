@@ -10,6 +10,9 @@ using Ingredient = CraftData.Ingredient;
 using Nautilus.Assets;
 using Nautilus.Assets.PrefabTemplates;
 using TMPro;
+using System;
+using Nautilus.Handlers;
+using FMOD;
 
 namespace AutosortLockers
 {
@@ -202,7 +205,11 @@ namespace AutosortLockers
                         foreach (var techType in filter.Types)
                         {
                             callsToCanAddItem++;
-                            var items = container.container.GetItems((TechType)techType);
+                            if(!TechTypeExtensions.FromString(techType, out TechType tt, true))
+                            {
+                                continue;
+                            }
+                            var items = container.container.GetItems(tt);
                             if (items != null && items.Count > 0 && target.CanAddItem(items[0].item))
                             {
                                 unsortableItems -= items.Count;

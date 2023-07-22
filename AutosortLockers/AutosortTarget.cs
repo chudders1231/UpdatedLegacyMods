@@ -11,6 +11,7 @@ using Ingredient = CraftData.Ingredient;
 using Nautilus.Assets;
 using Nautilus.Assets.PrefabTemplates;
 using TMPro;
+using Newtonsoft.Json;
 
 namespace AutosortLockers
 {
@@ -425,7 +426,7 @@ namespace AutosortLockers
 
 		private List<AutosorterFilter> GetNewVersion(List<AutosorterFilter> filterData)
 		{
-			Dictionary<TechType, AutosorterFilter> validItems = new Dictionary<TechType, AutosorterFilter>();
+			Dictionary<string, AutosorterFilter> validItems = new Dictionary<string, AutosorterFilter>();
 			Dictionary<string, AutosorterFilter> validCategories = new Dictionary<string, AutosorterFilter>();
 			var filterList = AutosorterList.GetFilters();
 			foreach (var filter in filterList)
@@ -436,7 +437,7 @@ namespace AutosortLockers
 				}
 				else
 				{
-					validItems[(TechType)filter.Types[0]] = filter;
+					validItems[filter.Types[0]] = filter;
 				}
 			}
 
@@ -564,7 +565,7 @@ namespace AutosortLockers
 					DestroyImmediate(label);
 
 					autosortTarget.icon = LockerPrefabShared.CreateIcon(autosortTarget.background.transform, autosortTarget.textPrefab.color, 70);
-					autosortTarget.text = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, -20, 12, "Any");
+					autosortTarget.text = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, -20, 10, "Any");
 
 					autosortTarget.label = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 100, 12, "Locker");
 
@@ -576,8 +577,8 @@ namespace AutosortLockers
 					autosortTarget.plus.color = new Color(autosortTarget.textPrefab.color.r, autosortTarget.textPrefab.color.g, autosortTarget.textPrefab.color.g, 0);
 					autosortTarget.plus.rectTransform.anchoredPosition += new Vector2(30, 70);
 
-					autosortTarget.quantityText = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 0, 10, "XX");
-					autosortTarget.quantityText.rectTransform.anchoredPosition += new Vector2(-35, -104);
+					autosortTarget.quantityText = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 0, 8, "XX");
+					autosortTarget.quantityText.rectTransform.anchoredPosition += new Vector2(-32, -104);
 
 					autosortTarget.configureButton = ConfigureButton.Create(autosortTarget.background.transform, autosortTarget.textPrefab.color, 40);
 					autosortTarget.configureButtonImage = autosortTarget.configureButton.GetComponent<Image>();
@@ -652,7 +653,7 @@ namespace AutosortLockers
 
                     autosortTarget.background = LockerPrefabShared.CreateBackground(canvas.transform);
 					autosortTarget.icon = LockerPrefabShared.CreateIcon(autosortTarget.background.transform, autosortTarget.textPrefab.color, 70);
-					autosortTarget.text = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, -20, 12, "Any");
+					autosortTarget.text = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, -20, 10, "Any");
 
 					autosortTarget.label = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 100, 12, "Locker");
 
@@ -665,7 +666,7 @@ namespace AutosortLockers
 					autosortTarget.plus.rectTransform.anchoredPosition += new Vector2(30, 70);
 
 					autosortTarget.quantityText = LockerPrefabShared.CreateText(autosortTarget.background.transform, autosortTarget.textPrefab, autosortTarget.textPrefab.color, 0, 10, "XX");
-					autosortTarget.quantityText.rectTransform.anchoredPosition += new Vector2(-35, -104);
+					autosortTarget.quantityText.rectTransform.anchoredPosition += new Vector2(-32, -104);
 
 					autosortTarget.configureButton = ConfigureButton.Create(autosortTarget.background.transform, autosortTarget.textPrefab.color, 40);
 					autosortTarget.configureButtonImage = autosortTarget.configureButton.GetComponent<Image>();

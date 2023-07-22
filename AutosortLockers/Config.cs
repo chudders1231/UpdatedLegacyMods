@@ -1,6 +1,11 @@
 ﻿using Nautilus.Options;
 using BepInEx.Configuration;
 using Nautilus.Handlers;
+using System.Collections.Generic;
+using Nautilus.Utility;
+using System.Reflection;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace AutosortLockers
 {
@@ -84,6 +89,25 @@ namespace AutosortLockers
             OptionsPanelHandler.RegisterModOptions(new AutoSortModOptions());
         }
 
+        public static void  WriteDefaultFilters()
+        {
+           if (FileUtils.FileExists(IOUtilities.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assets", "filters.json"))) return;
+
+            List<FilterEntry> filterFileData = new List<FilterEntry>();
+            foreach ( KeyValuePair<string, TechType[]> category in AutosorterCategoryData.defaultCategories)
+            {
+                List<string> value = new List<string>();
+                foreach (var v in category.Value)
+                {
+                    value.Add(v.ToString());
+                }
+
+                filterFileData.Add( new FilterEntry(category.Key, value) );
+            }
+
+            var json = JsonConvert.SerializeObject(filterFileData, Formatting.Indented);
+            File.WriteAllText(IOUtilities.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assets", "filters.json"), json);
+        }
         public class AutoSortModOptions : ModOptions 
         {
             public AutoSortModOptions() : base("Autosort Lockers")

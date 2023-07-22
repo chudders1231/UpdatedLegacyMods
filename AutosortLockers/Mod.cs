@@ -9,9 +9,8 @@ using BepInEx;
 using HarmonyLib;
 using Nautilus.Handlers;
 using System.Linq;
-using System.Collections;
 using Nautilus.Utility;
-using System.Text.RegularExpressions;
+using Nautilus.Utility.ModMessages;
 
 namespace AutosortLockers
 {
@@ -22,35 +21,30 @@ namespace AutosortLockers
         // Plugin Setup
         private const string myGUID = "com.chadlymasterson.autosortlockers";
         private const string pluginName = "Autosort Lockers";
-        private const string versionString = "1.0.4";
+        private const string versionString = "1.0.5";
 
 		public static List<Color> colors = new List<Color>();
 
-		public static SaveData saveData;
-        private static string modDirectory;
+		public static SaveData saveData = SaveDataHandler.RegisterSaveDataCache<SaveData>();
+        private static string modDirectory = "AutosortLockers";
 
 		public static readonly Harmony harmony = new Harmony(myGUID);
-        public static AssetBundle pickerMenuBundle;
+        public static AssetBundle pickerMenuBundle = AssetBundleLoadingUtils.LoadFromAssetsFolder(Assembly.GetExecutingAssembly(), "pickermenu");
+        public static ModInbox inbox = new ModInbox(myGUID);
 
         private void Awake()
 		{
 			AutosortLogger.Log("Patching started...");
 
-            pickerMenuBundle = AssetBundleLoadingUtils.LoadFromAssetsFolder(Assembly.GetExecutingAssembly(), "pickermenu");
-
-            modDirectory = "AutosortLockers";
-
             AutosortConfig.LoadConfig(Config);
-
-            saveData = SaveDataHandler.RegisterSaveDataCache<SaveData>();
+            AutosortConfig.WriteDefaultFilters();
+            RegisterModMessageReaders();
 
             RegisterColors();
 
 			AddBuildables();
 
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
-
-            //UWE.CoroutineHost.StartCoroutine(CheckPrefabs());
 
         }
 
@@ -65,13 +59,14 @@ namespace AutosortLockers
 
 		public static string GetModPath()
 		{
-			return Environment.CurrentDirectory + "/BepInEx/plugins/" + modDirectory;
+			return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 		}
 
-		public static string GetAssetPath(string filename)
+		public static string GetAssetPath(string filename = "")
 		{
-			return GetModPath() + "/Assets/" + filename;
-		}
+            return IOUtilities.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assets", filename);
+
+        }
 
         public static SaveDataEntry GetSaveData(string id)
         {
@@ -79,7 +74,7 @@ namespace AutosortLockers
             return saveData.Entries.GetOrDefault(id, new SaveDataEntry());
         }
 
-        public static void RegisterColors()
+        private static void RegisterColors()
 		{
 			var serializedColors = JsonConvert.DeserializeObject<List<SerializableColor>>(File.ReadAllText(GetAssetPath("colors.json")));
 
@@ -89,37 +84,64 @@ namespace AutosortLockers
             }
         }
 
-        public static IEnumerator CheckPrefabs()
+        private static void RegisterModMessageReaders()
         {
-            ErrorMessage.AddMessage($"Starting to check for prefabs!");
-            var pickupableTypes = new Dictionary<string, string>();
-            var startTime = DateTime.Now;
-            var lastCalledTime = startTime;
-            foreach (TechType type in Enum.GetValues(typeof(TechType)))
-            {
-                if (type == TechType.None) continue;
+            var AddEntry = new BasicModMessageReader(nameof(AutosorterList.AddEntry), (args) => {
+                if (args.Length < 2)
+                {
+                    throw new InvalidOperationException("ffs you are supposed to send two arguments, two strings");
+                }
 
-                var request = CraftData.GetPrefabForTechTypeAsync(type);
-                yield return request;
-                var result = request.GetResult();
-                if (!result) continue;
-                var intermediaryTime = DateTime.Now - lastCalledTime;
-                var words = Regex.Matches(type.ToString(), @"([A-Z][a-z]+)").Cast<Match>().Select(m => m.Value);
-                if (result.TryGetComponent<Pickupable>(out _)) pickupableTypes.Add(type.AsString(), string.Join(" ", words)) ;
+                AutosorterList.AddEntry(
+                    args[0] switch
+                    {
+                        string s => s,
+                        _ => throw new InvalidOperationException("bro wtf please send me a string as the first parameter, it's supposed to be a category name")
+                    },
+                    args[1] switch
+                    {
+                        string t => t,
+                        _ => throw new InvalidOperationException("bro wtf come on now, the second parameter is supposed to be a string...")
+                    }
+                );
+            });
 
-            }
+            var AddCategory = new BasicModMessageReader(nameof(AutosorterList.AddCategory), (args) => {
+                if (args.Length < 1)
+                {
+                    throw new InvalidOperationException("ffs you are supposed to send an argument, a string");
+                }
 
-            var json = JsonConvert.SerializeObject(pickupableTypes, Formatting.Indented);
-            File.WriteAllText(IOUtilities.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assets","pickupableTechTypes.json"), json);
+                AutosorterList.AddCategory(
+                    args[0] switch
+                    {
+                        string s => s,
+                        _ => throw new InvalidOperationException("bro wtf please send me a string as the first parameter, it's supposed to be a category name")
+                    }
+                );
+            });
 
-            var endTime = DateTime.Now;
-            var timeDifference = endTime - startTime;
+            var AddIndividiualItem = new BasicModMessageReader(nameof(AutosorterList.AddIndividualEntry), (args) => {
+                if (args.Length < 1)
+                {
+                    throw new InvalidOperationException("ffs you are supposed to send a string as the argument, the TechType name of the item");
+                }
 
-            var techType = TechTypeExtensions.FromString("Titanium", out TechType o, true);
+                AutosorterList.AddIndividualEntry(
+                    args[0] switch
+                    {
+                        string t => t,
+                        _ => throw new InvalidOperationException("bro wtf please send me a string as the first parameter, it's supposed to be the item")
+                    }
+                );
+            });
+            inbox.AddMessageReader(AddEntry);
+            inbox.AddMessageReader(AddCategory);
+            inbox.AddMessageReader(AddIndividiualItem);
+            ModMessageSystem.RegisterInbox(inbox);
 
+            inbox.ReadAnyHeldMessages();
 
-            ErrorMessage.AddMessage($"Got all prefabs, it took :{timeDifference.TotalSeconds} seconds");
-            ErrorMessage.AddMessage($"Titanium Techtype result: {o}");
         }
 
     }
