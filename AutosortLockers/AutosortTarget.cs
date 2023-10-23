@@ -385,7 +385,6 @@ namespace AutosortLockers
 
 		private void InitializeFromSaveData()
 		{
-			AutosortLogger.Log("Object Initialized from Save Data");
 			label.text = saveData.Label;
 			label.color = saveData.LabelColor.ToColor();
 			icon.color = saveData.IconColor.ToColor();

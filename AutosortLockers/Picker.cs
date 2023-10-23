@@ -2,8 +2,6 @@
 using Common.Utility;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -83,9 +81,6 @@ namespace AutosortLockers
 			}
 
 			page = 0;
-			//prevPageButton.gameObject.SetActive(pages > 1);
-			//nextPageButton.gameObject.SetActive(pages > 1);
-			//pageText.gameObject.SetActive(pages > 1);
 
 			UpdateText();
 		}

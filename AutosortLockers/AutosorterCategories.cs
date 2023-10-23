@@ -65,6 +65,8 @@ namespace AutosortLockers
 			TechType.PlasteelIngot,
 			TechType.Magnetite,
 			TechType.Nickel,
+			TechType.Copper,
+			TechType.Lithium
 		};
 		public static readonly TechType[] NaturalMaterials =
 		{
@@ -87,7 +89,6 @@ namespace AutosortLockers
 			TechType.FiberMesh,
 			TechType.Glass,
 			TechType.Silicone,
-			TechType.Lithium,
 			TechType.EnameledGlass,
 			TechType.AramidFibers,
             TechType.FirstAidKit,
@@ -100,6 +101,7 @@ namespace AutosortLockers
 			TechType.Benzene,
 			TechType.Lubricant,
 			TechType.HatchingEnzymes,
+			TechType.Salt
 		};
 		public static readonly TechType[] Electronics =
 		{
@@ -110,6 +112,7 @@ namespace AutosortLockers
 			TechType.ReactorRod,
 			TechType.DepletedReactorRod,
 			TechType.PrecursorIonCrystal,
+			TechType.Aerogel
 		};
 		public static readonly TechType[] CrystalMaterials =
 		{
@@ -120,7 +123,6 @@ namespace AutosortLockers
 		};
 		public static readonly TechType[] PlantsAndSeeds =
 		{
-			TechType.Aerogel,
             TechType.AcidMushroomSpore,
             TechType.BluePalmSeed,
             TechType.BulboTreePiece,

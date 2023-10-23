@@ -183,7 +183,7 @@ namespace AutosortLockers
 				UpdateAvailableTypes();
             }
 		}
-
+		
 		private int GetCurrentPage()
 		{
 			return currentMode == Mode.Categories ? currentPageCategories : currentPageItems;

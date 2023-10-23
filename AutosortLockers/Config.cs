@@ -127,8 +127,5 @@ namespace AutosortLockers
                 AddItem(StandingReceptacleHeight.ToModSliderOption(1, 10, 1));
             }
         }
-        
-
     }
-
 }

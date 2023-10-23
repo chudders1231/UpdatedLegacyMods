@@ -18,7 +18,7 @@ namespace AutosortLockers.Patches
 				{
 					if (Player.main == null)
 					{
-						AutosortLogger.Log("Deinitialize from no player");
+						Mod.logger.LogInfo("Deinitialize from no player");
 						initialized = false;
 					}
 					return;
@@ -38,7 +38,7 @@ namespace AutosortLockers.Patches
 		{
 			private static void PostFix()
 			{
-				AutosortLogger.Log("Deinitialize");
+                Mod.logger.LogInfo("Deinitialize");
 				initialized = false;
 			}
 		}

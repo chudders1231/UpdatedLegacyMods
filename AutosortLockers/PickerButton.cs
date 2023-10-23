@@ -14,7 +14,6 @@ namespace AutosortLockers
 		private static readonly Color inactiveHoverColor = new Color(1f, 1f, 1f, 1f);
 		private static readonly Color upColor = new Color(0.85f, 0.85f, 0.85f, 1f);
 		private static readonly Color hoverColor = new Color(1f, 1f, 1f, 1f);
-		private const int Slice = 70;
 
 		private bool hover;
 		private bool tabActive = true;

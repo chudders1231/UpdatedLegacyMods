@@ -10,7 +10,7 @@ using HarmonyLib;
 using Nautilus.Handlers;
 using System.Linq;
 using Nautilus.Utility;
-using Nautilus.Utility.ModMessages;
+using BepInEx.Logging;
 
 namespace AutosortLockers
 {
@@ -30,22 +30,31 @@ namespace AutosortLockers
 
 		public static readonly Harmony harmony = new Harmony(myGUID);
         public static AssetBundle pickerMenuBundle = AssetBundleLoadingUtils.LoadFromAssetsFolder(Assembly.GetExecutingAssembly(), "pickermenu");
-        public static ModInbox inbox = new ModInbox(myGUID);
+        public static ManualLogSource logger;
 
         private void Awake()
 		{
-			AutosortLogger.Log("Patching started...");
+            // Save the logger
+            logger = Logger;
 
+            logger.LogMessage("Autosort lockers patching started...");
+
+            // Register modoptions
             AutosortConfig.LoadConfig(Config);
-            AutosortConfig.WriteDefaultFilters();
-            RegisterModMessageReaders();
 
+            // Write default filters if it doesn't already exist
+            AutosortConfig.WriteDefaultFilters();
+
+            // Register hardcoded colours
             RegisterColors();
 
+            // Register locker buildables
 			AddBuildables();
 
+            // Patch all harmony patches
 			harmony.PatchAll(Assembly.GetExecutingAssembly());
 
+            logger.LogMessage("Autosort lockers patching finished...");
         }
 
 		public void AddBuildables()
@@ -74,6 +83,57 @@ namespace AutosortLockers
             return saveData.Entries.GetOrDefault(id, new SaveDataEntry());
         }
 
+        public void AutosortLockersAddEntry(object[] args)
+        {
+            if (args.Length < 2)
+            {
+                throw new InvalidOperationException("You are needing to supply two arguments, both are strings.");
+            }
+
+            AutosorterList.AddEntry(
+                args[0] switch
+                {
+                    string s => s,
+                    _ => throw new InvalidOperationException("The typing is incorrect for the first argument, it must be a string.")
+                },
+                args[1] switch
+                {
+                    string t => t,
+                    _ => throw new InvalidOperationException("The typing is incorrect for the second argument, it must be a string.")
+                }
+            );
+        }
+        public void AutosortLockersAddCategory(object[] args)
+        {
+            if (args.Length < 1)
+            {
+                throw new InvalidOperationException("A string must be supplied for the Category Name.");
+            }
+
+            AutosorterList.AddCategory(
+                args[0] switch
+                {
+                    string s => s,
+                    _ => throw new InvalidOperationException("The typing is incorrect, this requires a string.")
+                }
+            );
+        }
+        public void AutosortLockersAddIndividualEntry(object[] args)
+        {
+            if (args.Length < 1)
+            {
+                throw new InvalidOperationException("There must be only one argument, it must be a string.");
+            }
+
+            AutosorterList.AddIndividualEntry(
+                args[0] switch
+                {
+                    string t => t,
+                    _ => throw new InvalidOperationException("The typing is incorrect for the first argument, it must be a string.")
+                }
+            );
+        }
+
         private static void RegisterColors()
 		{
 			var serializedColors = JsonConvert.DeserializeObject<List<SerializableColor>>(File.ReadAllText(GetAssetPath("colors.json")));
@@ -82,66 +142,6 @@ namespace AutosortLockers
             {
                 colors.Add(sColor.ToColor());
             }
-        }
-
-        private static void RegisterModMessageReaders()
-        {
-            var AddEntry = new BasicModMessageReader(nameof(AutosorterList.AddEntry), (args) => {
-                if (args.Length < 2)
-                {
-                    throw new InvalidOperationException("ffs you are supposed to send two arguments, two strings");
-                }
-
-                AutosorterList.AddEntry(
-                    args[0] switch
-                    {
-                        string s => s,
-                        _ => throw new InvalidOperationException("bro wtf please send me a string as the first parameter, it's supposed to be a category name")
-                    },
-                    args[1] switch
-                    {
-                        string t => t,
-                        _ => throw new InvalidOperationException("bro wtf come on now, the second parameter is supposed to be a string...")
-                    }
-                );
-            });
-
-            var AddCategory = new BasicModMessageReader(nameof(AutosorterList.AddCategory), (args) => {
-                if (args.Length < 1)
-                {
-                    throw new InvalidOperationException("ffs you are supposed to send an argument, a string");
-                }
-
-                AutosorterList.AddCategory(
-                    args[0] switch
-                    {
-                        string s => s,
-                        _ => throw new InvalidOperationException("bro wtf please send me a string as the first parameter, it's supposed to be a category name")
-                    }
-                );
-            });
-
-            var AddIndividiualItem = new BasicModMessageReader(nameof(AutosorterList.AddIndividualEntry), (args) => {
-                if (args.Length < 1)
-                {
-                    throw new InvalidOperationException("ffs you are supposed to send a string as the argument, the TechType name of the item");
-                }
-
-                AutosorterList.AddIndividualEntry(
-                    args[0] switch
-                    {
-                        string t => t,
-                        _ => throw new InvalidOperationException("bro wtf please send me a string as the first parameter, it's supposed to be the item")
-                    }
-                );
-            });
-            inbox.AddMessageReader(AddEntry);
-            inbox.AddMessageReader(AddCategory);
-            inbox.AddMessageReader(AddIndividiualItem);
-            ModMessageSystem.RegisterInbox(inbox);
-
-            inbox.ReadAnyHeldMessages();
-
         }
 
     }

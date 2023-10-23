@@ -225,30 +225,14 @@ namespace AutosortLockers
             containerTargets.Clear();
             SeamothStorageContainer[] seamothStorageContainers = subRoot.gameObject.GetComponentsInChildren<SeamothStorageContainer>(true);
 
-            Exosuit[] exosuits = subRoot.gameObject.GetComponentsInChildren<Exosuit>();
-            List<StorageContainer> prawnStorageContainer = new List<StorageContainer>();
+            // This can be particularly confusing but storage containers in prawn suit also use the seamoth storage component...
 
-            foreach(var suit in exosuits)
-            {
-                var container = suit.GetComponentInChildren<StorageContainer>();
-                prawnStorageContainer.Add(container);
-            }
             foreach (var storageContainer in seamothStorageContainers)
             {
                 ItemsContainer itemContainer = storageContainer.container;
-                unloadableItems += itemContainer.count;
-                if (itemContainer.count <= 0)
+                if (itemContainer.count <= 0 || storageContainer.GetComponent<TechTag>().type == TechType.SeamothTorpedoModule || storageContainer.GetComponent<TechTag>().type == TechType.ExosuitTorpedoArmModule)
                     continue;
-
-                containerTargets.Add(itemContainer);
-            }
-            foreach (var storageContainer in prawnStorageContainer)
-            {
-                ItemsContainer itemContainer = storageContainer.container;
                 unloadableItems += itemContainer.count;
-                if (itemContainer.count <= 0)
-                    continue;
-
                 containerTargets.Add(itemContainer);
             }
         }
