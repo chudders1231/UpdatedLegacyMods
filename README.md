@@ -15,7 +15,7 @@
     <br />
     <br />
     <a href="https://github.com/chudders1231/UpdatedLegacyMods/issues">Report Bug</a>
-    •
+    â€¢
     <a href="https://github.com/chudders1231/UpdatedLegacyMods/issues">Request Feature</a>
   </p>
 </div>
@@ -95,15 +95,20 @@ You can customise the filters on the recepticle by either the item name, or cate
 
 Feel free to unload your inventory, or your Prawn suit for that matter into the autosorter, and watch it sort the items for you.
 
+If you want to edit the filters for the mod, please refer to the [Wiki](https://github.com/chudders1231/UpdatedLegacyMods/wiki/Autosort-Lockers#filter-entries). The full list of available `TechTypes` is in a table at the bottom.
+
+## Developer Information
+If you would like to add your own items to categories, add new categories, or add your items to the individual items list, refer to the [Wiki](https://github.com/chudders1231/UpdatedLegacyMods/wiki/Autosort-Lockers#developers-adding-items-categories-or-individual-items-at-runtime).
+
 ## **Roadmap**
 This project will be ever changing and will be updated with new mods, and new versions of each mod with new features, optimisations, and bug fixes. Below are planned changes and updates for each mod to keep an eye out for when submitting ideas.
 
 ### <u>Autosort Lockers Roadmap</u>
 - [x] Update to the living large update
+- [x] Filter editing and new filter additions
+- [x] Auto unloading locker for vehicle storage
 - [ ] Optimisation and project trimming
 - [ ] In-Game configuration
-- [ ] Filter editing and new filter additions
-- [ ] Auto unloading locker for vehicle storage
 
 ## **Acknowledgments**
 | Modder | Description | Support |
