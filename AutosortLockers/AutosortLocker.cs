@@ -39,6 +39,10 @@ namespace AutosortLockers
         [SerializeField]
         private TextMeshProUGUI sortingText;
         [SerializeField]
+        private bool sortToggle = true;
+        [SerializeField]
+        private GameObject sortToggleButton;
+        [SerializeField]
         private bool isSorting;
         [SerializeField]
         private bool sortedItem;
@@ -65,7 +69,7 @@ namespace AutosortLockers
             {
                 return;
             }
-
+            UpdateSortToggle();
             UpdateText();
         }
 
@@ -79,10 +83,31 @@ namespace AutosortLockers
             }
         }
 
+        private void UpdateSortToggle()
+        {
+
+            if (sortToggleButton)
+            {
+                Toggle sortToggleComponent = sortToggleButton.GetComponent<Toggle>();
+                if (sortToggleComponent.isOn)
+                {
+                    sortToggle = true;
+                }
+                else
+                {
+                    sortToggle = false;
+                }
+            }
+        }
+
         private void UpdateText()
         {
             string output = "";
-            if (isSorting)
+            if (sortToggle) {
+
+                output = "Sorting Disabled";
+
+            } else if (isSorting)
             {
                 output = "Sorting...";
             }
@@ -104,6 +129,7 @@ namespace AutosortLockers
             icon.gameObject.SetActive(true);
             text.gameObject.SetActive(true);
             sortingText.gameObject.SetActive(true);
+            sortToggleButton.SetActive(true);
 
             background.sprite = Common.Utility.ImageUtils.TextureToSprite(Utilities.GetTexture("LockerScreen"));
             icon.sprite = Common.Utility.ImageUtils.TextureToSprite(Utilities.GetTexture("Sorter"));
@@ -154,6 +180,11 @@ namespace AutosortLockers
             if (!initialized || container.IsEmpty())
             {
                 isSorting = false;
+                yield break;
+            }
+
+            if (sortToggle == false)
+            {
                 yield break;
             }
 
@@ -276,6 +307,7 @@ namespace AutosortLockers
         internal static class AutosortLockerBuildable
         {
             public static PrefabInfo Info { get; private set; }
+
             public static void Patch()
             {
                 Info = Utilities.CreatePrefabInfo(
@@ -291,6 +323,11 @@ namespace AutosortLockers
                 clonePrefab.ModifyPrefab += obj =>
                 {
                     var triggerCull = obj.GetComponentInChildren<TriggerCull>();
+                    DestroyImmediate(triggerCull);
+
+                    var label = obj.FindChild("Label");
+                    DestroyImmediate(label);
+
                     var container = obj.GetComponent<StorageContainer>();
                     container.width = AutosortConfig.AutosorterWidth.Value;
                     container.height = AutosortConfig.AutosorterHeight.Value;
@@ -302,27 +339,28 @@ namespace AutosortLockers
                         meshRenderer.material.color = new Color(1, 0, 0);
                     }
 
-                    var prefabText = obj.GetComponentInChildren<TextMeshProUGUI>();
-
-                    var label = obj.FindChild("Label");
-                    DestroyImmediate(label);
-
                     var autoSorter = obj.AddComponent<AutosortLocker>();
 
-                    var canvas = LockerPrefabShared.CreateCanvas(obj.transform);
-                    triggerCull.objectToCull = canvas.gameObject;
+                    var autosorterui = GameObject.Instantiate(Mod.autosorterBundle.LoadAsset<GameObject>("AutosorterUI"));
 
-                    autoSorter.background = LockerPrefabShared.CreateBackground(canvas.transform);
-                    autoSorter.icon = LockerPrefabShared.CreateIcon(autoSorter.background.transform, MainColor, 40);
-                    autoSorter.text = LockerPrefabShared.CreateText(autoSorter.background.transform, prefabText, MainColor, 0, 14, "Autosorter");
+                    autosorterui.transform.transform.SetParent(obj.transform, false);
+                    autosorterui.transform.localPosition = new Vector3(0f, -0.48f, 0.345f);
+                    autosorterui.transform.localEulerAngles = new Vector3(0, 180f, 0);
+                    autosorterui.GetComponentInChildren<Canvas>().sortingOrder = 2;
 
-                    autoSorter.sortingText = LockerPrefabShared.CreateText(autoSorter.background.transform, prefabText, MainColor, -120, 12, "Sorting...");
-                    autoSorter.sortingText.alignment = TextAlignmentOptions.Top;
+                    autoSorter.background = autosorterui.transform.Find("AutosorterCanvas/Background").GetComponent<Image>();
+                    autoSorter.icon = autosorterui.transform.Find("AutosorterCanvas/Background/AutosorterIcon").GetComponent<Image>();
+                    autoSorter.text = autosorterui.transform.Find("AutosorterCanvas/Background/AutosorterTitle").GetComponent<TextMeshProUGUI>();
+                    autoSorter.sortingText = autosorterui.transform.Find("AutosorterCanvas/Background/SortingText").GetComponent<TextMeshProUGUI>();
+                    autoSorter.sortToggleButton = autosorterui.transform.Find("AutosorterCanvas/Background/SortToggle").gameObject;
+
+                    autoSorter.sortToggleButton.EnsureComponent<ToggleButton>();
 
                     autoSorter.background.gameObject.SetActive(false);
                     autoSorter.icon.gameObject.SetActive(false);
                     autoSorter.text.gameObject.SetActive(false);
                     autoSorter.sortingText.gameObject.SetActive(false);
+                    autoSorter.sortToggleButton.gameObject.SetActive(false);
                 };
 
                 var recipe = new RecipeData

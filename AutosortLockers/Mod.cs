@@ -21,7 +21,7 @@ namespace AutosortLockers
         // Plugin Setup
         private const string myGUID = "com.chadlymasterson.autosortlockers";
         private const string pluginName = "Autosort Lockers";
-        private const string versionString = "1.0.5";
+        private const string versionString = "1.0.6";
 
 		public static List<Color> colors = new List<Color>();
 
@@ -30,6 +30,7 @@ namespace AutosortLockers
 
 		public static readonly Harmony harmony = new Harmony(myGUID);
         public static AssetBundle pickerMenuBundle = AssetBundleLoadingUtils.LoadFromAssetsFolder(Assembly.GetExecutingAssembly(), "pickermenu");
+        public static AssetBundle autosorterBundle = AssetBundleLoadingUtils.LoadFromAssetsFolder(Assembly.GetExecutingAssembly(), "autosorterui");
         public static ManualLogSource logger;
 
         private void Awake()
